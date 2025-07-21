@@ -1,0 +1,43 @@
+---
+:source:
+  :file: test/test_lora_get_message.c
+  :dirname: test
+  :basename: test_lora_get_message.c
+:successes:
+- :test: test_lora_get_frame_start_valid_sof
+  :line: 64
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_get_frame_start_invalid_sof
+  :line: 74
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_get_frame_type
+  :line: 84
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_get_frame_length
+  :line: 97
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_get_frame_data
+  :line: 111
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_get_frame_valid_crc_and_end
+  :line: 127
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_get_frame_invalid_crc
+  :line: 154
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 7
+  :passed: 7
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.032720607001465396
