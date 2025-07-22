@@ -1,10 +1,10 @@
-#include "lora_send_message.h"
+#include "lora_ota_node.h"
 #include "lora.h"
 #include "string.h"
 // #include "rtvars.h"
 // #include "lora_send_message.h"
 
-uint8_t DATA_BUF[LORA_DATA_MAX_SIZE] = {0}; // Buffer for sending data
+
 
 void lora_join_network_request()
 {

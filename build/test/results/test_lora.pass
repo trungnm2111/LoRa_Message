@@ -1,0 +1,81 @@
+---
+:source:
+  :file: test/test_lora.c
+  :dirname: test
+  :basename: test_lora.c
+:successes:
+- :test: test_loRaEncodeFrame_nullInput_shouldReturnError
+  :line: 28
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_nullBuffer_shouldReturnError
+  :line: 41
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError
+  :line: 60
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError
+  :line: 81
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_validInput_shouldEncodeCorrectly
+  :line: 102
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly
+  :line: 144
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly
+  :line: 176
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly
+  :line: 205
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly
+  :line: 236
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaGetFsmFrame_shouldReceiveCompleteFrame
+  :line: 270
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaGetFsmFrame_wrongCRC_shouldRejectFrame
+  :line: 307
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaDecodeFrame_shouldReturnValidStruct
+  :line: 361
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 12
+  :passed: 12
+  :failed: 0
+  :ignored: 0
+:stdout:
+- Start Test Fsm
+- Create buffer encoded
+- Caculate length frame encoded
+- Start send each byte to fsm receive
+- 'Send byte: AA, state: 1'
+- 'Send byte: A1, state: 1'
+- 'Send byte: B2, state: 2'
+- 'Send byte: 04, state: 2'
+- 'Send byte: 00, state: 3'
+- 'Send byte: 11, state: 3'
+- 'Send byte: 22, state: 3'
+- 'Send byte: 33, state: 3'
+- 'Send byte: 44, state: 4'
+- 'Send byte: 9C, state: 4'
+- 'Send byte: A5, state: 4'
+- 'Send byte: A9, state: 4'
+- 'Send byte: 8B, state: 5'
+- 'Send byte: BB, state: 0'
+:time: 0.04786828800024523

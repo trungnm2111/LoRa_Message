@@ -1,7 +1,7 @@
 #ifdef TEST
 #include <string.h>
 #include "unity.h"
-#include "lora_get_message.h"
+#include "lora_ota_node.h"
 #include "lora.h"
 #include "crc.h"
 

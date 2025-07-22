@@ -7,6 +7,7 @@
 #define UNITY_EXCLUDE_FLOAT
 #endif /* UNITY_EXCLUDE_FLOAT */
 #include "lora.h"
+#include "crc.h"
 
 int GlobalExpectCount;
 int GlobalVerifyOrder;
@@ -15,7 +16,18 @@ char* GlobalOrderError;
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_lora_NeedToImplement(void);
+extern void test_loRaEncodeFrame_nullInput_shouldReturnError(void);
+extern void test_loRaEncodeFrame_nullBuffer_shouldReturnError(void);
+extern void test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError(void);
+extern void test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError(void);
+extern void test_loRaEncodeFrame_validInput_shouldEncodeCorrectly(void);
+extern void test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly(void);
+extern void test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly(void);
+extern void test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly(void);
+extern void test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly(void);
+extern void test_loRaGetFsmFrame_shouldReceiveCompleteFrame(void);
+extern void test_loRaGetFsmFrame_wrongCRC_shouldRejectFrame(void);
+extern void test_loRaDecodeFrame_shouldReturnValidStruct(void);
 
 
 /*=======Mock Management=====*/
@@ -87,7 +99,29 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
     {
       UnityPrint("test_lora.");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_lora_NeedToImplement");
+      UnityPrint("  test_loRaEncodeFrame_nullInput_shouldReturnError");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_nullBuffer_shouldReturnError");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_validInput_shouldEncodeCorrectly");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaGetFsmFrame_shouldReceiveCompleteFrame");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaGetFsmFrame_wrongCRC_shouldRejectFrame");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaDecodeFrame_shouldReturnValidStruct");
       UNITY_PRINT_EOL();
       return 0;
     }
@@ -95,7 +129,18 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
   }
 #endif
   UnityBegin("test_lora.c");
-  run_test(test_lora_NeedToImplement, "test_lora_NeedToImplement", 15);
+  run_test(test_loRaEncodeFrame_nullInput_shouldReturnError, "test_loRaEncodeFrame_nullInput_shouldReturnError", 28);
+  run_test(test_loRaEncodeFrame_nullBuffer_shouldReturnError, "test_loRaEncodeFrame_nullBuffer_shouldReturnError", 41);
+  run_test(test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError, "test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError", 60);
+  run_test(test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError, "test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError", 81);
+  run_test(test_loRaEncodeFrame_validInput_shouldEncodeCorrectly, "test_loRaEncodeFrame_validInput_shouldEncodeCorrectly", 102);
+  run_test(test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly, "test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly", 144);
+  run_test(test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly, "test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly", 176);
+  run_test(test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly, "test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly", 205);
+  run_test(test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly, "test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly", 236);
+  run_test(test_loRaGetFsmFrame_shouldReceiveCompleteFrame, "test_loRaGetFsmFrame_shouldReceiveCompleteFrame", 270);
+  run_test(test_loRaGetFsmFrame_wrongCRC_shouldRejectFrame, "test_loRaGetFsmFrame_wrongCRC_shouldRejectFrame", 307);
+  run_test(test_loRaDecodeFrame_shouldReturnValidStruct, "test_loRaDecodeFrame_shouldReturnValidStruct", 361);
 
   return UNITY_END();
 }

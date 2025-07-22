@@ -1,4 +1,4 @@
-#include "lora_get_message.h"
+#include "lora_ota_gateway.h"
 #include <string.h>
 // #include "rtvars.h"
 // #include "lora.h"
@@ -90,6 +90,7 @@ void lora_get_frame(uint8_t temp_char)
 					{
 						// gSysParam.frame_ready_flag = true;
 						gSysParam.is_joined = 1;
+						PRINTF("end fsm ");
 						gLoraData.Buffer[gLoraData.Index] = temp_char;
 						lora_frame_status = LORA_FRAME_START;
 						lora_check_frame();
