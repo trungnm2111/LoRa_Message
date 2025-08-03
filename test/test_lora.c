@@ -18,27 +18,27 @@ void tearDown(void)
 
 // /* ////////////////////////////////////////// TEST ENCODER STRUCT INPUT TO ARRAY FRAME /////////////////////////////////// */
 
-#define TEST_SOF         0xA5
+#define TEST_SOF         0xAA
 #define TEST_PACKET_TYPE 0x01
 #define TEST_MESSAGE_TYPE 0x02
 #define TEST_DATA_LEN     4
-#define TEST_EOF         0x5A
+#define TEST_EOF         0xBB
 
 
-void test_loRaEncodeFrame_nullInput_shouldReturnError(void)
+void test_loRaEncryptedFrame_nullInput_shouldReturnError(void)
 {
     // printf("Start test_MessageCreateFrameRound3x3\n");
     // fflush(stdout);
 
     uint8_t buffer[64] = {0};
-    LORA_Frame_Status_t status = loRaEncodeFrame(NULL, buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(NULL, buffer);
     
 
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_ERROR, status);
 
 }
 
-void test_loRaEncodeFrame_nullBuffer_shouldReturnError(void)
+void test_loRaEncryptedFrame_nullBuffer_shouldReturnError(void)
 {
 
 
@@ -53,11 +53,11 @@ void test_loRaEncodeFrame_nullBuffer_shouldReturnError(void)
     };
 
 
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, NULL);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, NULL);
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_ERROR, status);
 }
 
-void test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError(void)
+void test_loRaEncryptedFrame_dataLenTooLarge_shouldReturnError(void)
 {
 
     uint8_t dummy_payload[300]; // > LORA_MAX_DATA_LEN nếu được định nghĩa nhỏ hơn 300
@@ -72,13 +72,13 @@ void test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError(void)
         .eof = TEST_EOF
     };
     uint8_t buffer[64] = {0};
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, buffer);
 
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_OVERLOAD_DATA, status); // nếu bạn có error này
 }
 
 
-void test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError(void)
+void test_loRaEncryptedFrame_nullPayloadWithNonzeroLength_shouldReturnError(void)
 {
 
     LORA_frame_t input_frame = {
@@ -92,14 +92,14 @@ void test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError(void)
     
     uint8_t buffer[64] = {0};
 
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, buffer);
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_ERROR, status);
     
 
 }
 
 
-void test_loRaEncodeFrame_validInput_shouldEncodeCorrectly(void)
+void test_loRaEncryptedFrame_validInput_shouldEncodeCorrectly(void)
 {
     crc_init();
     // Prepare input frame
@@ -115,7 +115,7 @@ void test_loRaEncodeFrame_validInput_shouldEncodeCorrectly(void)
 
     // Output buffer
     uint8_t encoded_buffer[64] = {0};
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, encoded_buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, encoded_buffer);
 
     // Kiểm tra status
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_SUCCESS, status);
@@ -141,7 +141,7 @@ void test_loRaEncodeFrame_validInput_shouldEncodeCorrectly(void)
     TEST_ASSERT_EQUAL_HEX8(TEST_EOF, encoded_buffer[offset_after_payload + sizeof(crc_t)]);
 }
 
-void test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly(void)
+void test_loRaEncryptedFrame_dataLenZero_shouldEncodeCorrectly(void)
 {
     crc_init();
     uint8_t test_payload[1] = {0}; // không dùng tới
@@ -155,7 +155,7 @@ void test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly(void)
     };
 
     uint8_t encoded_buffer[64] = {0};
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, encoded_buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, encoded_buffer);
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_SUCCESS, status);
 
     TEST_ASSERT_EQUAL_HEX8(TEST_SOF, encoded_buffer[0]);
@@ -173,7 +173,7 @@ void test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly(void)
     TEST_ASSERT_EQUAL_HEX8(TEST_EOF, encoded_buffer[offset + sizeof(crc_t)]);
 }
 
-void test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly(void)
+void test_loRaEncryptedFrame_dataLenOne_shouldEncodeCorrectly(void)
 {
     crc_init();
     uint8_t test_payload[1] = {0xAB};
@@ -187,7 +187,7 @@ void test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly(void)
     };
 
     uint8_t encoded_buffer[64] = {0};
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, encoded_buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, encoded_buffer);
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_SUCCESS, status);
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY(test_payload, &encoded_buffer[5], 1);
@@ -202,7 +202,7 @@ void test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly(void)
 }
 
 
-void test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly(void)
+void test_loRaEncryptedFrame_dataLen16_shouldEncodeCorrectly(void)
 {
     crc_init();
     uint8_t test_payload[16];
@@ -218,7 +218,7 @@ void test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly(void)
     };
 
     uint8_t encoded_buffer[64] = {0};
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, encoded_buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, encoded_buffer);
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_SUCCESS, status);
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY(test_payload, &encoded_buffer[5], 16);
@@ -233,7 +233,7 @@ void test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly(void)
 }
 
 
-void test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly(void)
+void test_loRaEncryptedFrame_dataLen63_shouldEncodeCorrectly(void)
 {
     crc_init();
     uint8_t test_payload[63];
@@ -250,7 +250,7 @@ void test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly(void)
 
     uint8_t encoded_buffer[128] = {0}; // tăng buffer để chứa được
 
-    LORA_Frame_Status_t status = loRaEncodeFrame(&input_frame, encoded_buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&input_frame, encoded_buffer);
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_SUCCESS, status);
 
     TEST_ASSERT_EQUAL_UINT8_ARRAY(test_payload, &encoded_buffer[5], 63);
@@ -285,7 +285,7 @@ void test_loRaGetFsmFrame_shouldReceiveCompleteFrame(void) {
     printf("Create buffer encoded\n");
     // Tạo buffer encoded
     uint8_t encoded_buffer[LORA_PACKET_MAX_SIZE] = {0};
-    LORA_Frame_Status_t status = loRaEncodeFrame(&test_frame, encoded_buffer);
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&test_frame, encoded_buffer);
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_SUCCESS, status);
 
     printf("Caculate length frame encoded\n");
@@ -317,7 +317,7 @@ void test_loRaGetFsmFrame_wrongCRC_shouldRejectFrame(void) {
     };
 
     uint8_t encoded[LORA_PACKET_MAX_SIZE] = {0};
-    loRaEncodeFrame(&frame, encoded);
+    loRaEncryptedFrame(&frame, encoded);
 
     // Làm CRC bị sai
     encoded[LORA_FRAME_HEADER_SIZE + sizeof(payload)] ^= 0xFF;
@@ -370,7 +370,7 @@ void test_loRaDecodeFrame_shouldReturnValidStruct(void) {
     };
 
     uint8_t encoded[LORA_PACKET_MAX_SIZE] = {0};
-    LORA_Frame_Status_t enc_status = loRaEncodeFrame(&input_frame, encoded);
+    LORA_Frame_Status_t enc_status = loRaEncryptedFrame(&input_frame, encoded);
     
     TEST_ASSERT_EQUAL(LORA_STATUS_ENCODE_FRAME_SUCCESS, enc_status);
 

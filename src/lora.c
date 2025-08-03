@@ -43,7 +43,7 @@ uint16_t mock_length;
  *         - `LORA_STATUS_ENCODE_FRAME_ERROR` nếu con trỏ đầu vào NULL hoặc payload NULL.
  *         - `LORA_STATUS_ENCODE_FRAME_OVERLOAD_DATA` nếu `data_len` vượt quá `LORA_DATA_MAX_SIZE`.
  */
-LORA_Frame_Status_t loRaEncodeFrame(LORA_frame_t *input, uint8_t * frame_buffer)
+LORA_Frame_Status_t loRaEncryptedFrame(LORA_frame_t *input, uint8_t * frame_buffer)
 {
     if (input == NULL || frame_buffer == NULL || input->data_payload == NULL)
     {
@@ -54,6 +54,8 @@ LORA_Frame_Status_t loRaEncodeFrame(LORA_frame_t *input, uint8_t * frame_buffer)
     {
         return LORA_STATUS_ENCODE_FRAME_OVERLOAD_DATA;
     }
+    input->sof = LORA_SOF;
+    input->eof = LORA_EOF;
     
     // Ghi các trường header vào buffer
     frame_buffer[0] = input->sof;
@@ -79,7 +81,6 @@ LORA_Frame_Status_t loRaEncodeFrame(LORA_frame_t *input, uint8_t * frame_buffer)
 
     return LORA_STATUS_ENCODE_FRAME_SUCCESS;
 }
-
 
 LORA_Frame_Status_t loRaDecodeFrame(uint8_t *input_frame_buffer, uint16_t length, LORA_frame_t *output) 
 {
@@ -132,9 +133,21 @@ LORA_Frame_Status_t loRaDecodeFrame(uint8_t *input_frame_buffer, uint16_t length
     if (input_frame_buffer[index++] != LORA_EOF) {
         return LORA_STATUS_DECODE_FRAME_INVALID_EOF;
     }
-
     output->eof = LORA_EOF;
 
+    if (output < 0) {
+        // Handle error
+    }
+
+    switch (output->packet_type)
+    {
+        case LORA_PACKET_TYPE_JOIN:
+            loRaJoinMessageHandler(output->message_type, output->data_payload, output->data_len);
+            break;
+        
+        default:
+            break;
+    }
     return LORA_STATUS_DECODE_FRAME_SUCCESS;
 }
 
@@ -242,8 +255,6 @@ void loRaInitFsmFrame(void)
     lora_fsm_frame.state = LORA_FSM_STATE_START;
     memset(lora_fsm_frame.buffer, 0, LORA_PACKET_MAX_SIZE);
 }
-
-
 
 uint16_t help_convert_byte_to_uint16(uint8_t low_byte, uint8_t high_byte)
 {
