@@ -62,9 +62,9 @@ LORA_Frame_Status_t loRaEncryptedFrame(LORA_frame_t *input, uint8_t * frame_buff
     frame_buffer[1] = input->packet_type;
     frame_buffer[2] = input->message_type;
 
-    // Ghi data_len (little-endian)
-    frame_buffer[3] = (uint8_t)(input->data_len & 0xFF);
-    frame_buffer[4] = (uint8_t)((input->data_len >> 8) & 0xFF);
+    // Ghi data_len (big-endian)
+    frame_buffer[3] = (uint8_t)((input->data_len >> 8) & 0xFF);
+    frame_buffer[4] = (uint8_t)(input->data_len & 0xFF);
 
     // Ghi payload vào sau header
     uint16_t offset = LORA_FRAME_HEADER_SIZE;
@@ -82,22 +82,24 @@ LORA_Frame_Status_t loRaEncryptedFrame(LORA_frame_t *input, uint8_t * frame_buff
     return LORA_STATUS_ENCODE_FRAME_SUCCESS;
 }
 
+
 LORA_Frame_Status_t loRaDecodeFrame(uint8_t *input_frame_buffer, uint16_t length, LORA_frame_t *output) 
 {
-    if (!input_frame_buffer || !output) {
-        return LORA_STATUS_DECODE_FRAME_ERROR;
+    //|| (lora_fsm_frame.is_done != 1)
+    if (!input_frame_buffer || !output ) {
+        return LORA_STATUS_DECODE_FRAME_INVALID_TYPE_INPUT;
     }
 
     // Kiểm tra độ dài tối thiểu: SOF + packet_type + message_type + data_len(2 byte) + CRC(2 byte) + EOF
     if (length < LORA_FRAME_HEADER_SIZE + sizeof(crc_t) + 1) {
-        return LORA_STATUS_DECODE_FRAME_ERROR;
+        return LORA_STATUS_DECODE_FRAME_INVALID_LENGTH_INPUT1;
     }
 
     uint16_t index = 0;
 
     // Kiểm tra SOF
     if (input_frame_buffer[index++] != LORA_SOF) {
-        return LORA_STATUS_DECODE_FRAME_ERROR;
+        return LORA_STATUS_DECODE_FRAME_INVALID_SOF;
     }
 
     output->sof = LORA_SOF;
@@ -105,12 +107,12 @@ LORA_Frame_Status_t loRaDecodeFrame(uint8_t *input_frame_buffer, uint16_t length
     // Đọc header
     output->packet_type = input_frame_buffer[index++];
     output->message_type = input_frame_buffer[index++];
-    output->data_len = input_frame_buffer[index++];
-    output->data_len |= ((uint16_t)input_frame_buffer[index++] << 8);
+    output->data_len = ((uint16_t)input_frame_buffer[index++] << 8);  // Byte cao
+    output->data_len |= input_frame_buffer[index++];    
 
     // Kiểm tra nếu length không đủ để chứa payload + CRC + EOF
     if (length < LORA_FRAME_HEADER_SIZE + output->data_len + sizeof(crc_t) + 1) {
-        return LORA_STATUS_DECODE_FRAME_ERROR;
+        return LORA_STATUS_DECODE_FRAME_INVALID_LENGTH_INPUT2;
     }
 
     // Gán con trỏ đến payload trong buffer (không copy)
@@ -119,12 +121,20 @@ LORA_Frame_Status_t loRaDecodeFrame(uint8_t *input_frame_buffer, uint16_t length
     index += output->data_len;
 
     // Đọc CRC
+    // crc_t received_crc = 0;
+    // memcpy(&received_crc, &input_frame_buffer[index], sizeof(crc_t));
+    // index += sizeof(crc_t);
+    // Đọc CRC theo Big Endian (giống data_len)
     crc_t received_crc = 0;
-    memcpy(&received_crc, &input_frame_buffer[index], sizeof(crc_t));
-    index += sizeof(crc_t);
+    received_crc = ((uint32_t)input_frame_buffer[index++] << 24);  // Byte cao nhất
+    received_crc |= ((uint32_t)input_frame_buffer[index++] << 16); // Byte cao
+    received_crc |= ((uint32_t)input_frame_buffer[index++] << 8);  // Byte thấp
+    received_crc |= input_frame_buffer[index++];                  // Byte thấp nhất
 
     // Tính CRC lại từ đầu đến trước CRC
     crc_t calculated_crc = crc_fast(input_frame_buffer, index - sizeof(crc_t));
+
+    output->crc = calculated_crc;
     if (received_crc != calculated_crc) {
         return LORA_STATUS_DECODE_FRAME_INVALID_CRC;
     }
@@ -142,9 +152,13 @@ LORA_Frame_Status_t loRaDecodeFrame(uint8_t *input_frame_buffer, uint16_t length
     switch (output->packet_type)
     {
         case LORA_PACKET_TYPE_JOIN:
-            loRaJoinMessageHandler(output->message_type, output->data_payload, output->data_len);
+            // loRaJoinPacketHandler(output->message_type, output->data_payload, output->data_len);
             break;
         
+        case LORA_PACKET_TYPE_OTA:
+            
+
+
         default:
             break;
     }

@@ -4,39 +4,39 @@
   :dirname: test
   :basename: test_lora.c
 :successes:
-- :test: test_loRaEncodeFrame_nullInput_shouldReturnError
+- :test: test_loRaEncryptedFrame_nullInput_shouldReturnError
   :line: 28
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_nullBuffer_shouldReturnError
+- :test: test_loRaEncryptedFrame_nullBuffer_shouldReturnError
   :line: 41
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_dataLenTooLarge_shouldReturnError
+- :test: test_loRaEncryptedFrame_dataLenTooLarge_shouldReturnError
   :line: 60
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_nullPayloadWithNonzeroLength_shouldReturnError
+- :test: test_loRaEncryptedFrame_nullPayloadWithNonzeroLength_shouldReturnError
   :line: 81
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_validInput_shouldEncodeCorrectly
+- :test: test_loRaEncryptedFrame_validInput_shouldEncodeCorrectly
   :line: 102
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_dataLenZero_shouldEncodeCorrectly
+- :test: test_loRaEncryptedFrame_dataLenZero_shouldEncodeCorrectly
   :line: 144
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_dataLenOne_shouldEncodeCorrectly
+- :test: test_loRaEncryptedFrame_dataLenOne_shouldEncodeCorrectly
   :line: 176
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_dataLen16_shouldEncodeCorrectly
+- :test: test_loRaEncryptedFrame_dataLen16_shouldEncodeCorrectly
   :line: 205
   :message: ''
   :unity_test_time: 0
-- :test: test_loRaEncodeFrame_dataLen63_shouldEncodeCorrectly
+- :test: test_loRaEncryptedFrame_dataLen63_shouldEncodeCorrectly
   :line: 236
   :message: ''
   :unity_test_time: 0
@@ -78,4 +78,4 @@
 - 'Send byte: A9, state: 4'
 - 'Send byte: 8B, state: 5'
 - 'Send byte: BB, state: 0'
-:time: 0.03252955099998189
+:time: 0.058178540999989536

@@ -1,0 +1,19 @@
+---
+:source:
+  :file: test/test_lora_ota.c
+  :dirname: test
+  :basename: test_lora_ota.c
+:successes:
+- :test: test_loRaOtaReceiveHandler_from_server_log_full
+  :line: 119
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 1
+  :passed: 1
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.05486066099990694

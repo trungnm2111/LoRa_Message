@@ -1,0 +1,31 @@
+---
+:source:
+  :file: test/test_lora_send_message.c
+  :dirname: test
+  :basename: test_lora_send_message.c
+:successes:
+- :test: test_lora_join_network_request_frame_structure
+  :line: 33
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_join_network_request_crc
+  :line: 47
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_join_network_request_send_frame
+  :line: 61
+  :message: ''
+  :unity_test_time: 0
+- :test: test_lora_join_network_request_empty_mac
+  :line: 71
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 4
+  :passed: 4
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.059582883000075526

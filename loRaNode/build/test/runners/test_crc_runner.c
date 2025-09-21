@@ -18,10 +18,8 @@ extern void tearDown(void);
 extern void test_reflect(void);
 extern void test_crc_init_should_create_valid_table(void);
 extern void test_crc_slow_empty_data(void);
-extern void test_crc_slow_known_data(void);
-extern void test_crc_fast_empty_data(void);
-extern void test_crc_fast_known_data(void);
-extern void test_crc_fast_matches_crc_slow(void);
+extern void test_crc_fast_frame_data(void);
+extern void test_crc_slow_frame_data(void);
 
 
 /*=======Mock Management=====*/
@@ -99,13 +97,9 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
       UNITY_PRINT_EOL();
       UnityPrint("  test_crc_slow_empty_data");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_crc_slow_known_data");
+      UnityPrint("  test_crc_fast_frame_data");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_crc_fast_empty_data");
-      UNITY_PRINT_EOL();
-      UnityPrint("  test_crc_fast_known_data");
-      UNITY_PRINT_EOL();
-      UnityPrint("  test_crc_fast_matches_crc_slow");
+      UnityPrint("  test_crc_slow_frame_data");
       UNITY_PRINT_EOL();
       return 0;
     }
@@ -116,10 +110,8 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
   run_test(test_reflect, "test_reflect", 15);
   run_test(test_crc_init_should_create_valid_table, "test_crc_init_should_create_valid_table", 22);
   run_test(test_crc_slow_empty_data, "test_crc_slow_empty_data", 31);
-  run_test(test_crc_slow_known_data, "test_crc_slow_known_data", 44);
-  run_test(test_crc_fast_empty_data, "test_crc_fast_empty_data", 56);
-  run_test(test_crc_fast_known_data, "test_crc_fast_known_data", 67);
-  run_test(test_crc_fast_matches_crc_slow, "test_crc_fast_matches_crc_slow", 79);
+  run_test(test_crc_fast_frame_data, "test_crc_fast_frame_data", 78);
+  run_test(test_crc_slow_frame_data, "test_crc_slow_frame_data", 89);
 
   return UNITY_END();
 }

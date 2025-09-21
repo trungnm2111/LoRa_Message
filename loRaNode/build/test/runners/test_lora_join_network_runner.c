@@ -9,6 +9,7 @@
 #include "lora_join_network.h"
 #include "lora.h"
 #include "crc.h"
+#include "lora_node_storage.h"
 
 int GlobalExpectCount;
 int GlobalVerifyOrder;
@@ -17,14 +18,22 @@ char* GlobalOrderError;
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
 extern void tearDown(void);
-extern void test_loRaCreateJoinRequest_valid_input_should_succeed(void);
-extern void test_loRaCreateJoinRequest_null_params_should_fail(void);
-extern void test_loRaProcessJoinRequest_valid_mac_should_succeed(void);
-extern void test_loRaProcessJoinRequest_invalid_mac_should_fail(void);
-extern void test_loRaJoinMessageHandler_with_join_type_should_delegate_correctly(void);
-extern void test_loRaJoinMessageHandler_with_invalid_type_should_fail(void);
-extern void test_full_join_request_flow_should_succeed(void);
-extern void test_full_fsm_and_decode();
+extern void test_loRaJoinNetworkGetRequest(void);
+extern void test_loRaCreateJoinRequest(void);
+extern void test_loRaCreateJoinAccept_null_ptr(void);
+extern void test_loRaCreateJoinAccept_invalid_mac_key(void);
+extern void test_loRaCreateJoinAccept_success(void);
+extern void test_join_request_and_accept(void);
+extern void test_loRaJoinNetworkGetAccept_valid_payload(void);
+extern void test_loRaJoinNetworkGetAccept_invalid_mac(void);
+extern void test_loRaJoinNetworkGetAccept_invalid_key(void);
+extern void test_loRaJoinNetworkGetAccept_null_pointer(void);
+extern void test_end_to_end_create_and_get_accept(void);
+extern void test_loRaCreateJoinConfirm_valid_data(void);
+extern void test_loRaCreateJoinConfirm_null_pointer(void);
+extern void test_loRaCreateJoinConfirm_invalid_mac(void);
+extern void test_loRaCreateJoinConfirm_invalid_key(void);
+extern void test_loRaCreateJoinConfirm_and_GetConfirm_success(void);
 
 
 /*=======Mock Management=====*/
@@ -96,21 +105,37 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
     {
       UnityPrint("test_lora_join_network.");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_loRaCreateJoinRequest_valid_input_should_succeed");
+      UnityPrint("  test_loRaJoinNetworkGetRequest");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_loRaCreateJoinRequest_null_params_should_fail");
+      UnityPrint("  test_loRaCreateJoinRequest");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_loRaProcessJoinRequest_valid_mac_should_succeed");
+      UnityPrint("  test_loRaCreateJoinAccept_null_ptr");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_loRaProcessJoinRequest_invalid_mac_should_fail");
+      UnityPrint("  test_loRaCreateJoinAccept_invalid_mac_key");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_loRaJoinMessageHandler_with_join_type_should_delegate_correctly");
+      UnityPrint("  test_loRaCreateJoinAccept_success");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_loRaJoinMessageHandler_with_invalid_type_should_fail");
+      UnityPrint("  test_join_request_and_accept");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_full_join_request_flow_should_succeed");
+      UnityPrint("  test_loRaJoinNetworkGetAccept_valid_payload");
       UNITY_PRINT_EOL();
-      UnityPrint("  test_full_fsm_and_decode");
+      UnityPrint("  test_loRaJoinNetworkGetAccept_invalid_mac");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaJoinNetworkGetAccept_invalid_key");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaJoinNetworkGetAccept_null_pointer");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_end_to_end_create_and_get_accept");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaCreateJoinConfirm_valid_data");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaCreateJoinConfirm_null_pointer");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaCreateJoinConfirm_invalid_mac");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaCreateJoinConfirm_invalid_key");
+      UNITY_PRINT_EOL();
+      UnityPrint("  test_loRaCreateJoinConfirm_and_GetConfirm_success");
       UNITY_PRINT_EOL();
       return 0;
     }
@@ -118,14 +143,22 @@ static void run_test(UnityTestFunction func, const char* name, UNITY_LINE_TYPE l
   }
 #endif
   UnityBegin("test_lora_join_network.c");
-  run_test(test_loRaCreateJoinRequest_valid_input_should_succeed, "test_loRaCreateJoinRequest_valid_input_should_succeed", 69);
-  run_test(test_loRaCreateJoinRequest_null_params_should_fail, "test_loRaCreateJoinRequest_null_params_should_fail", 82);
-  run_test(test_loRaProcessJoinRequest_valid_mac_should_succeed, "test_loRaProcessJoinRequest_valid_mac_should_succeed", 98);
-  run_test(test_loRaProcessJoinRequest_invalid_mac_should_fail, "test_loRaProcessJoinRequest_invalid_mac_should_fail", 109);
-  run_test(test_loRaJoinMessageHandler_with_join_type_should_delegate_correctly, "test_loRaJoinMessageHandler_with_join_type_should_delegate_correctly", 117);
-  run_test(test_loRaJoinMessageHandler_with_invalid_type_should_fail, "test_loRaJoinMessageHandler_with_invalid_type_should_fail", 124);
-  run_test(test_full_join_request_flow_should_succeed, "test_full_join_request_flow_should_succeed", 134);
-  run_test(test_full_fsm_and_decode, "test_full_fsm_and_decode", 172);
+  run_test(test_loRaJoinNetworkGetRequest, "test_loRaJoinNetworkGetRequest", 37);
+  run_test(test_loRaCreateJoinRequest, "test_loRaCreateJoinRequest", 70);
+  run_test(test_loRaCreateJoinAccept_null_ptr, "test_loRaCreateJoinAccept_null_ptr", 112);
+  run_test(test_loRaCreateJoinAccept_invalid_mac_key, "test_loRaCreateJoinAccept_invalid_mac_key", 126);
+  run_test(test_loRaCreateJoinAccept_success, "test_loRaCreateJoinAccept_success", 143);
+  run_test(test_join_request_and_accept, "test_join_request_and_accept", 163);
+  run_test(test_loRaJoinNetworkGetAccept_valid_payload, "test_loRaJoinNetworkGetAccept_valid_payload", 204);
+  run_test(test_loRaJoinNetworkGetAccept_invalid_mac, "test_loRaJoinNetworkGetAccept_invalid_mac", 225);
+  run_test(test_loRaJoinNetworkGetAccept_invalid_key, "test_loRaJoinNetworkGetAccept_invalid_key", 233);
+  run_test(test_loRaJoinNetworkGetAccept_null_pointer, "test_loRaJoinNetworkGetAccept_null_pointer", 243);
+  run_test(test_end_to_end_create_and_get_accept, "test_end_to_end_create_and_get_accept", 252);
+  run_test(test_loRaCreateJoinConfirm_valid_data, "test_loRaCreateJoinConfirm_valid_data", 306);
+  run_test(test_loRaCreateJoinConfirm_null_pointer, "test_loRaCreateJoinConfirm_null_pointer", 331);
+  run_test(test_loRaCreateJoinConfirm_invalid_mac, "test_loRaCreateJoinConfirm_invalid_mac", 359);
+  run_test(test_loRaCreateJoinConfirm_invalid_key, "test_loRaCreateJoinConfirm_invalid_key", 372);
+  run_test(test_loRaCreateJoinConfirm_and_GetConfirm_success, "test_loRaCreateJoinConfirm_and_GetConfirm_success", 387);
 
   return UNITY_END();
 }

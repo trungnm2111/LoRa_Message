@@ -1,0 +1,248 @@
+/* lora_ota.h
+ * OTA-over-LoRa protocol 
+ * Author: TrungNM
+ * Created: *********
+*/
+
+#include "lora_ota.h"
+
+OTA_NodeContext_t ota_node;
+
+void otaNodeInit(uint8_t *fw_storage_buf) 
+{
+    ota_node.expected_state = OTA_NODE_WAIT_START;
+    ota_node.expected_fw_buffer = fw_storage_buf;
+    ota_node.expected_fw_size = 0;
+    ota_node.expected_chunk_size = 0;
+    ota_node.expected_seq = 0;
+    ota_node.expected_crc = 0;
+    ota_node.received_bytes = 0;
+}
+
+LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, uint16_t payload_len)
+{
+    switch (message_type) {
+    case OTA_TYPE_START:
+        if (ota_node.expected_state != OTA_NODE_WAIT_START) return LORA_OTA_STATUS_INVALID_CHECK_STATE;
+        // payload có thể chỉ là 0x00
+        ota_node.expected_state = OTA_NODE_WAIT_HEADER;
+        return LORA_OTA_STATUS_PROCESS_START_SUCCESS;
+    
+    case OTA_TYPE_HEADER:
+        if (ota_node.expected_state != OTA_NODE_WAIT_HEADER) return LORA_OTA_STATUS_INVALID_CHECK_STATE;
+        if (payload_len < sizeof(ota_header_t)) return LORA_OTA_STATUS_DECODE_FAILED;
+
+        ota_node.expected_fw_size = 0;
+        ota_header_t *hdr = (ota_header_t *)payload;
+        ota_node.expected_session_id = hdr->session_id;
+        ota_node.expected_fw_size = hdr->fw_size;
+        ota_node.expected_chunk_size = hdr->chunk_size;
+        ota_node.expected_crc = hdr->fw_crc;
+        ota_node.expected_total_chunks = hdr->total_chunks;
+        ota_node.expected_seq = 0;
+        ota_node.received_bytes = 0;
+
+        ota_node.expected_state = OTA_NODE_RECEIVING_DATA;
+        return LORA_OTA_STATUS_PROCESS_HEADER_SUCCESS;
+    
+    case OTA_TYPE_DATA:
+        if (ota_node.expected_state != OTA_NODE_RECEIVING_DATA) return LORA_OTA_STATUS_INVALID_CHECK_STATE;
+        if (payload_len < 2) {
+            ota_node.expected_state = OTA_NODE_ERROR;
+            return LORA_OTA_STATUS_DECODE_FAILED;
+        }
+        
+        uint16_t seq = ((uint16_t)payload[0] << 8) | payload[1];
+        // if (seq != ota_node.expected_seq) {
+        //     ota_node.expected_state = OTA_NODE_ERROR;
+        //     return LORA_OTA_STATUS_SEQUENCE_ERROR;
+        // }
+
+        // copy data vào buffer (bỏ 2 byte sequence)
+        uint16_t data_len  = payload_len - 2;
+        memcpy(ota_node.expected_fw_buffer + ota_node.received_bytes,
+               &payload[2],
+               data_len );
+        ota_node.received_bytes += data_len ;
+        ota_node.expected_seq++;
+
+        // nếu nhận đủ → chờ END
+        if (ota_node.received_bytes >= ota_node.expected_fw_size || ota_node.expected_seq > ota_node.expected_total_chunks ) {
+            ota_node.expected_state = OTA_NODE_WAIT_END;
+        }
+        return LORA_OTA_STATUS_PROCESS_DATA_SUCCESS;
+
+    case OTA_TYPE_END:
+        if (ota_node.expected_state != OTA_NODE_WAIT_END) return LORA_OTA_STATUS_INVALID_CHECK_STATE;
+        ota_node.expected_state = OTA_NODE_WAIT_SIGNAL_UPDATE;
+        return LORA_OTA_STATUS_PROCESS_END_SUCCESS;
+
+    case OTA_TYPE_SIGNAL_UPDATE:
+        if (ota_node.expected_state != OTA_NODE_WAIT_SIGNAL_UPDATE) return LORA_OTA_STATUS_INVALID_SESSION;
+        crc_t crc_check = crc_fast(ota_node.expected_fw_buffer, ota_node.received_bytes);
+        if(crc_check != ota_node.expected_crc )
+        {
+            ota_node.expected_state = OTA_NODE_ERROR;
+            return LORA_OTA_STATUS_CHECK_CRC_FIRMWARE_ERROR;
+        }
+        ota_node.expected_state = OTA_NODE_DONE;
+        return LORA_OTA_STATUS_PROCESS_SIGNAL_UPDATE_SUCCESS;
+
+    default:
+        return LORA_OTA_STATUS_INVALID_SESSION;
+    }
+}
+
+LORA_OtaStatus_t loRaOtaCreateStart(uint8_t *frame_buffer, uint16_t *frame_length)
+{
+    // Tạo frame structure
+    LORA_frame_t lora_frame = {
+        .packet_type = LORA_PACKET_TYPE_OTA,
+        .message_type = OTA_TYPE_START,
+        .data_len = OTA_START_LENGTH,
+        .data_payload = 0x00
+    };
+
+    LORA_Frame_Status_t result = loRaEncryptedFrame(&lora_frame, frame_buffer);
+    
+    if (result != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+        return LORA_OTA_STATUS_ENCODE_FAILED;
+    }
+    
+    *frame_length = LORA_FRAME_HEADER_SIZE + LORA_JOIN_REQUEST_LENGTH + sizeof(crc_t) + 1;
+    
+    return LORA_OTA_STATUS_CREATE_START_SUCCESS;
+}
+
+LORA_OtaStatus_t loRaOtaCreateResponse(uint8_t ack_nack,
+                                       uint8_t *frame_buffer,
+                                       uint16_t *frame_length)
+{
+    if (!frame_buffer || !frame_length) {
+        return LORA_OTA_STATUS_NULL_POINTER;
+    }
+
+    uint8_t payload = (ack_nack == OTA_RESP_ACK) ? OTA_RESP_ACK : OTA_RESP_NACK;
+
+    LORA_frame_t lora_frame = {
+        .packet_type  = LORA_PACKET_TYPE_OTA,
+        .message_type = OTA_TYPE_RESPONSE,
+        .data_len     = 1,
+        .data_payload = &payload
+    };
+
+    LORA_Frame_Status_t result = loRaEncryptedFrame(&lora_frame, frame_buffer);
+    if (result != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+        return LORA_OTA_STATUS_ENCODE_FAILED;
+    }
+
+    *frame_length = LORA_FRAME_HEADER_SIZE + 1 + sizeof(crc_t) + 1;
+
+    return LORA_OTA_STATUS_CREATE_RESPONSE_SUCCESS;
+}
+
+LORA_OtaStatus_t loRaOtaCreateHeader(const ota_header_t *header,
+                                     uint8_t *frame_buffer,
+                                     uint16_t *frame_length)
+{
+    if (!header || !frame_buffer || !frame_length) {
+        return LORA_OTA_STATUS_NULL_POINTER;
+    }
+
+    // Tạo frame OTA_HEADER
+    LORA_frame_t lora_frame = {
+        .packet_type  = LORA_PACKET_TYPE_OTA,
+        .message_type = OTA_TYPE_HEADER,
+        .data_len     = sizeof(ota_header_t),
+        .data_payload = (uint8_t *)header
+    };
+
+    LORA_Frame_Status_t result = loRaEncryptedFrame(&lora_frame, frame_buffer);
+    if (result != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+        return LORA_OTA_STATUS_ENCODE_FAILED;
+    }
+
+    *frame_length = LORA_FRAME_HEADER_SIZE + sizeof(ota_header_t) + sizeof(crc_t) + 1;
+
+    return LORA_OTA_STATUS_CREATE_HEADER_SUCCESS;
+}
+
+// LORA_OtaStatus_t loRaOtaCreateData(uint16_t seq,
+//                                    const uint8_t *chunk,
+//                                    uint16_t chunk_len,
+//                                    uint8_t *frame_buffer,
+//                                    uint16_t *frame_length)
+// {
+//     if (!chunk || !frame_buffer || !frame_length) {
+//         return LORA_OTA_STATUS_NULL_POINTER;
+//     }
+
+//     // Chuẩn bị payload: seq (2B) + data
+//     static uint8_t temp_payload[OTA_MAX_CHUNK_SIZE + 2];
+//     memcpy(temp_payload, &seq, sizeof(uint16_t));
+//     memcpy(temp_payload + 2, chunk, chunk_len);
+
+//     uint16_t total_len = sizeof(uint16_t) + chunk_len;
+
+//     LORA_frame_t lora_frame = {
+//         .packet_type  = LORA_PACKET_TYPE_OTA,
+//         .message_type = OTA_TYPE_DATA,
+//         .data_len     = total_len,
+//         .data_payload = temp_payload
+//     };
+
+//     LORA_Frame_Status_t result = loRaEncryptedFrame(&lora_frame, frame_buffer);
+//     if (result != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+//         return LORA_OTA_STATUS_ENCODE_FAILED;
+//     }
+
+//     *frame_length = LORA_FRAME_HEADER_SIZE + total_len + sizeof(crc_t) + 1;
+
+//     return LORA_OTA_STATUS_CREATE_DATA_SUCCESS;
+// }
+
+LORA_OtaStatus_t loRaOtaCreateEnd(uint8_t *frame_buffer, uint16_t *frame_length)
+{
+    if (!frame_buffer || !frame_length) {
+        return LORA_OTA_STATUS_NULL_POINTER;
+    }
+
+    LORA_frame_t lora_frame = {
+        .packet_type  = LORA_PACKET_TYPE_OTA,
+        .message_type = OTA_TYPE_END,
+        .data_len     = 1,
+        .data_payload = (uint8_t *)"\x01"   // payload đơn giản = 0x01
+    };
+
+    LORA_Frame_Status_t result = loRaEncryptedFrame(&lora_frame, frame_buffer);
+    if (result != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+        return LORA_OTA_STATUS_ENCODE_FAILED;
+    }
+
+    *frame_length = LORA_FRAME_HEADER_SIZE + 1 + sizeof(crc_t) + 1;
+
+    return LORA_OTA_STATUS_CREATE_END_SUCCESS;
+}
+
+LORA_OtaStatus_t loRaOtaCreateSignalUpdate(uint8_t *frame_buffer, uint16_t *frame_length)
+{
+    if (!frame_buffer || !frame_length) {
+        return LORA_OTA_STATUS_NULL_POINTER;
+    }
+
+    LORA_frame_t lora_frame = {
+        .packet_type  = LORA_PACKET_TYPE_OTA,
+        .message_type = OTA_TYPE_SIGNAL_UPDATE,
+        .data_len     = 1,
+        .data_payload = (uint8_t *)"\x02"
+    };
+
+    LORA_Frame_Status_t result = loRaEncryptedFrame(&lora_frame, frame_buffer);
+    if (result != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+        return LORA_OTA_STATUS_ENCODE_FAILED;
+    }
+
+    *frame_length = LORA_FRAME_HEADER_SIZE + 1 + sizeof(crc_t) + 1;
+
+    return LORA_OTA_STATUS_CREATE_SIGNAL_UPDATE_SUCCESS;
+}

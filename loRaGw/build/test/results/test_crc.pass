@@ -1,0 +1,43 @@
+---
+:source:
+  :file: test/test_crc.c
+  :dirname: test
+  :basename: test_crc.c
+:successes:
+- :test: test_reflect
+  :line: 15
+  :message: ''
+  :unity_test_time: 0
+- :test: test_crc_init_should_create_valid_table
+  :line: 22
+  :message: ''
+  :unity_test_time: 0
+- :test: test_crc_slow_empty_data
+  :line: 31
+  :message: ''
+  :unity_test_time: 0
+- :test: test_crc_slow_known_data
+  :line: 44
+  :message: ''
+  :unity_test_time: 0
+- :test: test_crc_fast_empty_data
+  :line: 56
+  :message: ''
+  :unity_test_time: 0
+- :test: test_crc_fast_known_data
+  :line: 67
+  :message: ''
+  :unity_test_time: 0
+- :test: test_crc_fast_matches_crc_slow
+  :line: 79
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 7
+  :passed: 7
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.05623499600000059

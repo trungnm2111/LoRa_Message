@@ -1,0 +1,70 @@
+---
+:source:
+  :file: test/test_lora_join_network.c
+  :dirname: test
+  :basename: test_lora_join_network.c
+:successes:
+- :test: test_loRaJoinNetworkGetRequest
+  :line: 37
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaCreateJoinAccept_null_ptr
+  :line: 71
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaCreateJoinAccept_invalid_mac_key
+  :line: 85
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaCreateJoinAccept_success
+  :line: 102
+  :message: ''
+  :unity_test_time: 0
+- :test: test_join_request_and_accept
+  :line: 122
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaCreateJoinConfirm_and_GetConfirm_success
+  :line: 168
+  :message: ''
+  :unity_test_time: 0
+- :test: test_loRaCreateJoinComplete_full
+  :line: 233
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 7
+  :passed: 7
+  :failed: 0
+  :ignored: 0
+:stdout:
+- 'Bắt đầu tiến hành test cho GET_REQUEST '
+- 'Array Output (6 bytes):'
+- '11 22 33 44 55 66 '
+- 'TEST GET JOIN REQUEST SUCCESS ** '
+- "== Start test join accept null ptr "
+- 'TEST CREATE JOIN ACCEPT NULL PTR SUCCESS ** '
+- "== Start test join accept invalid mac key "
+- 'TEST CREATE JOIN ACCEPT INVALID MAC SUCCESS ** '
+- "== Start Test CreateJoinAccept =="
+- 'TEST CREATE JOIN ACCEPT SUCCESS ** '
+- 'Array Output (16 bytes):'
+- 'AA 01 01 06 00 11 22 33 44 55 66 AF 97 18 C3 BB '
+- 'Array Output (6 bytes):'
+- '11 22 33 44 55 66 '
+- Join Request parsed OK
+- Join Accept created OK, length = 32
+- 'Join Accept Frame: Array Output (32 bytes):'
+- 'AA 01 02 16 00 11 22 33 44 55 66 AA BB CC DD EE FF 01 02 03 04 05 06 07 08 09 0A
+  08 B5 54 9F BB '
+- 'Join Confirm Frame: Array Output (32 bytes):'
+- 'AA 01 03 16 00 11 22 33 44 55 66 AA BB CC DD EE FF 01 02 03 04 05 06 07 08 09 0A
+  06 25 DF 3A BB '
+- ''
+- "==== TEST loRaCreateJoinComplete ===="
+- 'Generated Join Complete frame (len=18): Array Output (18 bytes):'
+- 'AA 01 04 08 00 11 22 33 44 55 66 AB CD F8 30 95 C1 BB '
+- "==== END TEST loRaCreateJoinComplete ===="
+:time: 0.07267820199922426

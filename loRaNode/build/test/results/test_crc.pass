@@ -16,28 +16,20 @@
   :line: 31
   :message: ''
   :unity_test_time: 0
-- :test: test_crc_slow_known_data
-  :line: 44
+- :test: test_crc_fast_frame_data
+  :line: 78
   :message: ''
   :unity_test_time: 0
-- :test: test_crc_fast_empty_data
-  :line: 56
-  :message: ''
-  :unity_test_time: 0
-- :test: test_crc_fast_known_data
-  :line: 67
-  :message: ''
-  :unity_test_time: 0
-- :test: test_crc_fast_matches_crc_slow
-  :line: 79
+- :test: test_crc_slow_frame_data
+  :line: 89
   :message: ''
   :unity_test_time: 0
 :failures: []
 :ignores: []
 :counts:
-  :total: 7
-  :passed: 7
+  :total: 5
+  :passed: 5
   :failed: 0
   :ignored: 0
 :stdout: []
-:time: 0.05623499600000059
+:time: 0.020642915000053108

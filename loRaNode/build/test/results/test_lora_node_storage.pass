@@ -1,0 +1,43 @@
+---
+:source:
+  :file: test/test_lora_node_storage.c
+  :dirname: test
+  :basename: test_lora_node_storage.c
+:successes:
+- :test: test_storage_init_idempotent
+  :line: 18
+  :message: ''
+  :unity_test_time: 0
+- :test: test_storage_set_get_node_mac_and_flags
+  :line: 29
+  :message: ''
+  :unity_test_time: 0
+- :test: test_storage_set_get_network_key_and_gateway
+  :line: 39
+  :message: ''
+  :unity_test_time: 0
+- :test: test_storage_invalid_size_and_null_pointer_handling
+  :line: 57
+  :message: ''
+  :unity_test_time: 0
+- :test: test_storage_join_state_and_device_address_and_message_counter
+  :line: 76
+  :message: ''
+  :unity_test_time: 0
+- :test: test_storage_get_and_increment_counter_behaviour
+  :line: 101
+  :message: ''
+  :unity_test_time: 0
+- :test: test_storage_clear_all_resets_flags_and_values
+  :line: 117
+  :message: ''
+  :unity_test_time: 0
+:failures: []
+:ignores: []
+:counts:
+  :total: 7
+  :passed: 7
+  :failed: 0
+  :ignored: 0
+:stdout: []
+:time: 0.035977311999999984

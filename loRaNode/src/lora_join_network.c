@@ -2,11 +2,21 @@
 #include "lora.h"
 #include "string.h"
 
+/* ========================================= FUNCTION FOR NODE ============================================= */
 
-LORA_Join_Network_Status_t loRaJoinMessageHandler(uint8_t message_type, uint8_t *payload, uint16_t payload_len)
+
+LORA_Join_Network_Status_t loRaJoinPacketHandler(uint8_t message_type, uint8_t *payload, uint16_t payload_len)
 {
-    if (message_type == LORA_JOIN_TYPE_REQUEST)
-        return loRaJoinNetworkGetRequest(payload, payload_len);
+    LORA_join_info_t join_info;
+    // if (message_type == LORA_JOIN_TYPE_REQUEST)
+    //     return loRaJoinNetworkGetRequest(payload, payload_len, &join_info);
+    if (message_type == LORA_JOIN_TYPE_ACCEPT){
+        return loRaJoinNetworkGetAccept(payload, payload_len, &join_info);
+    }
+
+    if (message_type == LORA_JOIN_TYPE_COMMPLETE){
+        return loRaJoinNetworkGetComplete(payload, payload_len, &join_info);
+    }
 
     return LORA_JOIN_STATUS_DECODE_FAILED; // Hoặc một enum khác nếu có loại message không hỗ trợ
 }
@@ -15,7 +25,7 @@ LORA_Join_Network_Status_t loRaJoinMessageHandler(uint8_t message_type, uint8_t 
 // === JOIN REQUEST IMPLEMENTATION ===
 
 // Node side: Create join request frame
-LORA_Join_Network_Status_t loRaCreateJoinRequest(const uint8_t *mac_address, 
+LORA_Join_Network_Status_t loRaCreateJoinRequest(uint8_t *mac_address, 
                                                 uint8_t *frame_buffer, 
                                                 uint16_t *frame_length)
 {
@@ -30,16 +40,12 @@ LORA_Join_Network_Status_t loRaCreateJoinRequest(const uint8_t *mac_address,
         return LORA_JOIN_STATUS_INVALID_MAC;
     }
     
-    // Tạo payload
-    LORA_join_request_t join_request;
-    memcpy(join_request.mac_address, mac_address, 6);
-    
     // Tạo frame structure
     LORA_frame_t lora_frame = {
         .packet_type = LORA_PACKET_TYPE_JOIN,
         .message_type = LORA_JOIN_TYPE_REQUEST,
-        .data_len = sizeof(LORA_join_request_t),
-        .data_payload = (uint8_t*)&join_request
+        .data_len = LORA_JOIN_REQUEST_LENGTH,
+        .data_payload = mac_address
     };
     
     LORA_Frame_Status_t result = loRaEncryptedFrame(&lora_frame, frame_buffer);
@@ -48,74 +54,217 @@ LORA_Join_Network_Status_t loRaCreateJoinRequest(const uint8_t *mac_address,
         return LORA_JOIN_STATUS_ENCODE_FAILED;
     }
     
-    *frame_length = LORA_FRAME_HEADER_SIZE + sizeof(LORA_join_request_t) + sizeof(crc_t) + 1;
+    *frame_length = LORA_FRAME_HEADER_SIZE + LORA_JOIN_REQUEST_LENGTH + sizeof(crc_t) + 1;
     
     return LORA_JOIN_STATUS_CREATE_REQUEST_SUCCESS;
 }
 
-LORA_Join_Network_Status_t loRaJoinNetworkGetRequest(uint8_t *payload, uint16_t payload_len)
+
+
+/* ===  Get Join Accept == */
+LORA_Join_Network_Status_t loRaJoinNetworkGetAccept(uint8_t *payload_data, uint16_t payload_len, LORA_join_info_t *join_info )
 {
-    // Kiểm tra tham số đầu vào
-    if (!payload) {
+    if (!payload_data || !join_info) {
         return LORA_JOIN_STATUS_NULL_POINTER;
     }
-    
-    if (payload_len != sizeof(LORA_join_request_t)) {
+
+    if (payload_len != 6+16) {
         return LORA_JOIN_STATUS_INVALID_PAYLOAD_LENGTH;
     }
+
+    const uint8_t zero_mac[6] = {0};
+    const uint8_t zero_key[16] = {0};
     
-    // Lấy MAC address từ payload
-    const uint8_t *mac_address = payload;
-    uint8_t zero_mac[6] = {0};
-    
-    // Kiểm tra MAC address có hợp lệ không (không được là tất cả số 0)
-    if (memcmp(mac_address, zero_mac, 6) == 0) {
+    if (memcmp(payload_data, zero_mac, 6) == 0) {
         return LORA_JOIN_STATUS_INVALID_MAC;
     }
+
+    if (memcmp(payload_data + 6, zero_key, 16) == 0) {
+        return LORA_JOIN_STATUS_INVALID_KEY;
+    }
+    // Copy 6 bytes đầu vào mac_address
+    memcpy(join_info->mac_address, payload_data, 6);
     
-    // Nếu cần lưu MAC address để phản hồi, bạn có thể:
-    // 1. Sử dụng biến global
-    // 2. Hoặc truyền thêm tham số output
-    // 3. Hoặc lưu vào một structure quản lý state
-    
-    // TODO: Store node info, assign network parameters, etc.
-    // TODO: Prepare join response with network session keys
-    
-    return LORA_JOIN_STATUS_DECODE_REQUEST_SUCCESS;
+    // Copy 16 bytes tiếp theo vào net_key
+    memcpy(join_info->net_key, payload_data + 6, 16);
+ 
+    return LORA_JOIN_STATUS_GET_ACCEPT_SUCCESS;
 }
 
-/* ////////////////////////////////////////// JOIN ACCEPT /////////////////////////// */
-/* Create Join Accept */
-LORA_Join_Network_Status_t loRaJoinNetworkGetAccept(uint8_t *payload_data, uint16_t payload_len)
+
+/**
+ * @brief Create Join Confirm
+ */
+LORA_Join_Network_Status_t loRaCreateJoinConfirm(const uint8_t *mac_address, const uint8_t *dev_key,
+                                                 uint8_t *frame_buffer, uint16_t *frame_length)
 {
-    if (!payload_data) {
+    if (!mac_address || !dev_key || !frame_buffer || !frame_length) {
         return LORA_JOIN_STATUS_NULL_POINTER;
     }
-
-    if (payload_len != sizeof(LORA_join_accept_t)) {
-        return LORA_JOIN_STATUS_INVALID_PAYLOAD_LENGTH;
-    }
-
-    const LORA_join_accept_t *join_accept = (const LORA_join_accept_t *)payload_data;
-
+   
+    // Validate MAC
     static const uint8_t zero_mac[6] = {0};
-    static const uint8_t zero_key[16] = {0};
-
-    if (memcmp(join_accept->mac_address, zero_mac, 6) == 0) {
+    if (memcmp(mac_address, zero_mac, 6) == 0 ) {
         return LORA_JOIN_STATUS_INVALID_MAC;
     }
 
-    if (memcmp(join_accept->net_key, zero_key, 16) == 0) {
+    // Validate dev_key
+    static const uint8_t zero_dev_key[16] = {0};
+    if (memcmp(dev_key, zero_dev_key, 16) == 0 ) {
         return LORA_JOIN_STATUS_INVALID_KEY;
     }
 
-    LORA_Join_Network_Status_t store_result = loRaStoreJoinAcceptData(
-        join_accept->mac_address, join_accept->net_key
-    );
+    uint8_t payload[6 + 16];
+    memcpy(payload, mac_address, 6);
+    memcpy(payload + 6, dev_key, 16);
 
-    if (store_result != LORA_JOIN_STATUS_STORE_SUCCESS) {
-        return store_result;
+    // Đóng gói frame
+    LORA_frame_t lora_frame = {
+        .packet_type   = LORA_PACKET_TYPE_JOIN,
+        .message_type  = LORA_JOIN_TYPE_ACCEPT,
+        .data_len      = 6 + 16,
+        .data_payload  = payload
+    };
+
+    LORA_Frame_Status_t status = loRaEncryptedFrame(&lora_frame, frame_buffer);
+    
+    if (status != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+        return LORA_JOIN_STATUS_ENCODE_FAILED;
     }
 
-    return LORA_JOIN_STATUS_PROCESS_SUCCESS;
+    *frame_length = LORA_FRAME_HEADER_SIZE + lora_frame.data_len + sizeof(crc_t) + 1; // 1 = encrypted flag byte
+    return LORA_JOIN_STATUS_CREATE_CONFIRM_SUCCESS;
+}
+
+
+/* Get Join Complete */
+LORA_Join_Network_Status_t loRaJoinNetworkGetComplete(uint8_t *payload_data, uint16_t payload_len, LORA_join_info_t *join_info )
+{
+    if (!payload_data || !join_info) {
+        return LORA_JOIN_STATUS_NULL_POINTER;
+    }
+
+    if (payload_len != 6+2) {
+        return LORA_JOIN_STATUS_INVALID_PAYLOAD_LENGTH;
+    }
+
+    const uint8_t zero_mac[6] = {0};
+    const uint8_t zero_unicast[2] = {0};
+    
+    if (memcmp(payload_data, zero_mac, 6) == 0) {
+        return LORA_JOIN_STATUS_INVALID_MAC;
+    }
+
+    if (memcmp(payload_data + 6, zero_unicast, 2) == 0) {
+        return LORA_JOIN_STATUS_INVALID_KEY;
+    }
+    // Copy 6 bytes đầu vào mac_address
+    memcpy(join_info->mac_address, payload_data, 6);
+    
+    // Copy 2 bytes tiếp theo vào unicast
+    memcpy(join_info->unicast, payload_data + 6, 2);
+ 
+    return LORA_JOIN_STATUS_GET_COMPLETE_SUCCESS;
+}
+ 
+/* ========================================= FUNCTION FOR GATEWAY ============================================= */
+
+
+// LORA_Join_Network_Status_t loRaJoinNetworkGetRequest(uint8_t *payload, uint16_t payload_len, LORA_join_info_t *join_info)
+// {
+//     // Kiểm tra tham số đầu vào
+//     if (!payload || !join_info) {
+//         return LORA_JOIN_STATUS_NULL_POINTER;
+//     }
+    
+//     if (payload_len != LORA_JOIN_REQUEST_LENGTH) {
+//         return LORA_JOIN_STATUS_INVALID_PAYLOAD_LENGTH;
+//     }
+    
+//     // Lấy MAC address từ payload
+//     const uint8_t *payload_mac  = payload;
+//     uint8_t zero_mac[6] = {0};
+    
+//     // Check not zero_mac
+//     if (memcmp(zero_mac, payload_mac , 6) == 0) {
+//         return LORA_JOIN_STATUS_INVALID_MAC;
+//     }
+    
+//     memcpy(join_info->mac_address, payload_mac, sizeof(join_info->mac_address));    
+
+//     return LORA_JOIN_STATUS_GET_REQUEST_SUCCESS;
+// }
+
+
+// /* Create Join Accept */
+// LORA_Join_Network_Status_t loRaCreateJoinAccept(uint8_t *mac_address,  uint8_t *net_key,
+//                                                  uint8_t *frame_buffer, uint16_t *frame_length)
+// {
+//     if (!mac_address || !net_key || !frame_buffer || !frame_length) {
+//         return LORA_JOIN_STATUS_NULL_POINTER;
+//     }
+
+//     // Validate MAC
+//     static const uint8_t zero_mac[6] = {0};
+//     if (memcmp(mac_address, zero_mac, 6) == 0 ) {
+//         return LORA_JOIN_STATUS_INVALID_MAC;
+//     }
+
+//     // Validate net_key
+//     static const uint8_t zero_key[16] = {0};
+//     if (memcmp(net_key, zero_key, 16) == 0 ) {
+//         return LORA_JOIN_STATUS_INVALID_KEY;
+//     }
+
+//     uint8_t payload[6 + 16];
+//     memcpy(payload, mac_address, 6);
+//     memcpy(payload + 6, net_key, 16);
+
+//     // Đóng gói frame
+//     LORA_frame_t lora_frame = {
+//         .packet_type   = LORA_PACKET_TYPE_JOIN,
+//         .message_type  = LORA_JOIN_TYPE_ACCEPT,
+//         .data_len      = 6 + 16,
+//         .data_payload  = payload
+//     };
+
+//     LORA_Frame_Status_t status = loRaEncryptedFrame(&lora_frame, frame_buffer);
+    
+//     if (status != LORA_STATUS_ENCODE_FRAME_SUCCESS) {
+//         return LORA_JOIN_STATUS_ENCODE_FAILED;
+//     }
+
+//     *frame_length = LORA_FRAME_HEADER_SIZE + lora_frame.data_len + sizeof(crc_t) + 1; // 1 = encrypted flag byte
+//     return LORA_JOIN_STATUS_CREATE_ACCEPT_SUCCESS;
+// }
+
+
+/* Get Join Confirm */
+LORA_Join_Network_Status_t loRaJoinNetworkGetConfirm(uint8_t *payload_data, uint16_t payload_len, LORA_join_info_t *join_info )
+{
+    if (!payload_data || !join_info) {
+        return LORA_JOIN_STATUS_NULL_POINTER;
+    }
+
+    if (payload_len != 6+16) {
+        return LORA_JOIN_STATUS_INVALID_PAYLOAD_LENGTH;
+    }
+
+    const uint8_t zero_mac[6] = {0};
+    const uint8_t zero_dev_key[16] = {0};
+    
+    if (memcmp(payload_data, zero_mac, 6) == 0) {
+        return LORA_JOIN_STATUS_INVALID_MAC;
+    }
+
+    if (memcmp(payload_data + 6, zero_dev_key, 16) == 0) {
+        return LORA_JOIN_STATUS_INVALID_KEY;
+    }
+    // Copy 6 bytes đầu vào mac_address
+    memcpy(join_info->mac_address, payload_data, 6);
+    
+    // Copy 16 bytes tiếp theo vào net_key
+    memcpy(join_info->dev_key, payload_data + 6, 16);
+ 
+    return LORA_JOIN_STATUS_GET_CONFIRM_SUCCESS;
 }
