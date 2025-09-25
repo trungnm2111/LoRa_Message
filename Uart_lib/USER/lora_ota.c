@@ -6,12 +6,15 @@
 
 #include "lora_ota.h"
 
+static uint8_t firmware_receive_buffer[10*1024];
+
+
 OTA_NodeContext_t ota_node;
 
-void otaNodeInit(uint8_t *fw_storage_buf) 
+void otaNodeInit(void) 
 {
     ota_node.expected_state = OTA_NODE_WAIT_START;
-    ota_node.expected_fw_buffer = fw_storage_buf;
+    ota_node.expected_fw_buffer = firmware_receive_buffer;
     ota_node.expected_fw_size = 0;
     ota_node.expected_chunk_size = 0;
     ota_node.expected_seq = 0;
@@ -19,48 +22,62 @@ void otaNodeInit(uint8_t *fw_storage_buf)
     ota_node.received_bytes = 0;
 }
 
+
 LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, uint16_t payload_len)
 {
-		if (!payload && payload_len > 0) {
+    // Kiểm tra input
+    if (!payload && payload_len > 0) {
         return LORA_OTA_STATUS_INVALID_INPUT;
     }
+    
     switch (message_type) {
     case OTA_TYPE_START:
-				if (ota_node.expected_state != OTA_NODE_WAIT_START) {
-					return LORA_OTA_STATUS_INVALID_CHECK_STATE;
-				}
-				
-        memset(&ota_node, 0, sizeof(ota_node));
-        ota_node.expected_state = OTA_NODE_WAIT_HEADER;
-        return LORA_OTA_STATUS_PROCESS_START_SUCCESS;
-    
-    case OTA_TYPE_HEADER:
-				if (ota_node.expected_state != OTA_NODE_WAIT_HEADER) {
+        if (ota_node.expected_state != OTA_NODE_WAIT_START) {
             return LORA_OTA_STATUS_INVALID_CHECK_STATE;
         }
         
+        // Reset tất cả các giá trị OTA
+        memset(&ota_node, 0, sizeof(ota_node));
+        ota_node.expected_state = OTA_NODE_WAIT_HEADER;
+        ota_node.expected_fw_buffer = firmware_receive_buffer;
+        return LORA_OTA_STATUS_PROCESS_START_SUCCESS;
+    
+    case OTA_TYPE_HEADER:
+        if (ota_node.expected_state != OTA_NODE_WAIT_HEADER) {
+            return LORA_OTA_STATUS_INVALID_CHECK_STATE;
+        }
+
         if (payload_len < sizeof(ota_header_t)) {
             ota_node.expected_state = OTA_NODE_ERROR;
             return LORA_OTA_STATUS_DECODE_FAILED;
         }
 
-				ota_header_t *hdr = (ota_header_t *)payload;
-				if (hdr->fw_size == 0 || hdr->fw_size > OTA_MAX_FIRMWARE_SIZE) {
+        ota_header_t *hdr = (ota_header_t *)payload;
+        
+        // CRITICAL: Kiểm tra firmware size hợp lệ
+				hdr->fw_size = swap_endian16(hdr->fw_size);
+        if (hdr->fw_size == 0 || hdr->fw_size > OTA_MAX_FIRMWARE_SIZE) {
             ota_node.expected_state = OTA_NODE_ERROR;
-            return LORA_OTA_STATUS_INVALID_DATA_HEADER;
+            return LORA_OTA_STATUS_INVALID_FIRMWARE_SIZE;
         }
-				
-				if (hdr->chunk_size == 0 || hdr->chunk_size > OTA_MAX_CHUNK_SIZE) {
+        
+        // Kiểm tra chunk size hợp lệ
+				hdr->chunk_size = swap_endian16(hdr->chunk_size);
+        if (hdr->chunk_size == 0 || hdr->chunk_size > OTA_MAX_CHUNK_SIZE) {
             ota_node.expected_state = OTA_NODE_ERROR;
-            return LORA_OTA_STATUS_INVALID_DATA_HEADER;
+						Usart_SendNumber(hdr->chunk_size);
+            return LORA_OTA_STATUS_INVALID_CHUNK_SIZE;
         }
-				
-				 uint16_t calculated_chunks = (hdr->fw_size + hdr->chunk_size - 1) / hdr->chunk_size;
+        
+        // Kiểm tra total chunks logic
+				hdr->total_chunks = swap_endian16(hdr->total_chunks);
+        uint16_t calculated_chunks = (hdr->fw_size + hdr->chunk_size - 1) / hdr->chunk_size;
         if (hdr->total_chunks != calculated_chunks) {
             ota_node.expected_state = OTA_NODE_ERROR;
-            return LORA_OTA_STATUS_INVALID_DATA_HEADER;
+            return LORA_OTA_STATUS_INVALID_TOTAL_CHUNKS;
         }
-				
+				hdr->fw_crc = swap_endian32(hdr->fw_crc);
+
         // Gán các giá trị sau khi validate
         ota_node.expected_session_id = hdr->session_id;
         ota_node.expected_fw_size = hdr->fw_size;
@@ -69,10 +86,10 @@ LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, u
         ota_node.expected_total_chunks = hdr->total_chunks;
         ota_node.expected_seq = 0;
         ota_node.received_bytes = 0;
-
+				
         // Clear firmware buffer
         if (ota_node.expected_fw_buffer) {
-            memset(ota_node.expected_fw_buffer, 0, OTA_FIRMWARE_BUFFER_SIZE);
+            memset(ota_node.expected_fw_buffer, 0, OTA_MAX_FIRMWARE_SIZE);
         }
 
         ota_node.expected_state = OTA_NODE_RECEIVING_DATA;
@@ -91,7 +108,7 @@ LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, u
         // Kiểm tra buffer pointer
         if (!ota_node.expected_fw_buffer) {
             ota_node.expected_state = OTA_NODE_ERROR;
-            return LORA_OTA_STATUS_INVALID_DATA_FIRMWARE;
+            return LORA_OTA_STATUS_NULL_POINTER;
         }
         
         uint16_t seq = ((uint16_t)payload[0] << 8) | payload[1];
@@ -99,11 +116,12 @@ LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, u
         
         // Validate sequence (có thể bỏ comment nếu cần strict sequence)
         if (seq != ota_node.expected_seq) {
-            ota_node.expected_state = OTA_NODE_ERROR;;
+            ota_node.expected_state = OTA_NODE_ERROR;
             return LORA_OTA_STATUS_SEQUENCE_ERROR;
         }
-				
-				if (ota_node.received_bytes + data_len > ota_node.expected_fw_size) {
+        
+        // CRITICAL: Kiểm tra bounds trước khi memcpy
+        if (ota_node.received_bytes + data_len > ota_node.expected_fw_size) {
             ota_node.expected_state = OTA_NODE_ERROR;
             return LORA_OTA_STATUS_BUFFER_OVERFLOW;
         }
@@ -117,26 +135,23 @@ LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, u
         // Kiểm tra data_len hợp lệ
         if (data_len == 0 || data_len > ota_node.expected_chunk_size) {
             ota_node.expected_state = OTA_NODE_ERROR;
-            return LORA_OTA_STATUS_INVALID_DATA_FIRMWARE;
+            return LORA_OTA_STATUS_BUFFER_OVERFLOW;
         }
 
-				 memcpy(ota_node.expected_fw_buffer + ota_node.received_bytes,
+        // AN TOÀN: Copy data với bounds đã kiểm tra
+        memcpy(ota_node.expected_fw_buffer + ota_node.received_bytes,
                &payload[2],
                data_len);
                
         ota_node.received_bytes += data_len;
         ota_node.expected_seq++;
 
-        // Debug progress
-        if (ota_node.expected_seq % 10 == 0) {
-        }
-
         // Kiểm tra điều kiện hoàn thành
         if (ota_node.received_bytes >= ota_node.expected_fw_size || 
             ota_node.expected_seq >= ota_node.expected_total_chunks) {
             ota_node.expected_state = OTA_NODE_WAIT_END;
-				}
-						
+        }
+        
         return LORA_OTA_STATUS_PROCESS_DATA_SUCCESS;
 
     case OTA_TYPE_END:
@@ -154,24 +169,23 @@ LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, u
         return LORA_OTA_STATUS_PROCESS_END_SUCCESS;
 
     case OTA_TYPE_SIGNAL_UPDATE:
-				if (ota_node.expected_state != OTA_NODE_WAIT_SIGNAL_UPDATE) {
+        if (ota_node.expected_state != OTA_NODE_WAIT_SIGNAL_UPDATE) {
             return LORA_OTA_STATUS_INVALID_CHECK_STATE;
         }
-        
         if (!ota_node.expected_fw_buffer || ota_node.received_bytes == 0) {
             ota_node.expected_state = OTA_NODE_ERROR;
-            return LORA_OTA_STATUS_INCOMPLETE_DATA;
+            return LORA_OTA_STATUS_CHECK_CRC_FIRMWARE_ERROR;
         }
-        
         // Tính CRC với bounds check
         crc_t crc_check = crc_slow(ota_node.expected_fw_buffer, ota_node.received_bytes);
-        
+
         if (crc_check != ota_node.expected_crc) {
             ota_node.expected_state = OTA_NODE_ERROR;
             return LORA_OTA_STATUS_CHECK_CRC_FIRMWARE_ERROR;
         }
-				ota_node.expected_state = OTA_NODE_DONE;
-				return LORA_OTA_STATUS_PROCESS_SIGNAL_UPDATE_SUCCESS;
+        
+        ota_node.expected_state = OTA_NODE_DONE;
+        return LORA_OTA_STATUS_PROCESS_SIGNAL_UPDATE_SUCCESS;
 
     default:
         return LORA_OTA_STATUS_INVALID_SESSION;

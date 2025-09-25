@@ -21,15 +21,15 @@ Target DLL:      STLink\ST-LINKIII-KEIL_SWO.dll V3.0.6.0
 Dialog DLL:      TCM.DLL V1.36.2.0
  
 <h2>Project:</h2>
-C:\Users\pc\OneDrive\Desktop\Work\lora\Uart_lib\MDK\uart.uvprojx
+C:\Users\pc\OneDrive\Desktop\Work\lora\lora_message\Uart_lib\MDK\uart.uvprojx
 Project File Date:  09/01/2025
 
 <h2>Output:</h2>
 *** Using Compiler 'V6.12', folder: 'D:\SYSTEM\Keil\Core\ARM\ARMCLANG\Bin'
 Build target 'Target 1'
-compiling main.c...
+compiling lora_ota.c...
 linking...
-Program Size: Code=5202 RO-data=274 RW-data=0 ZI-data=2848  
+Program Size: Code=5222 RO-data=274 RW-data=0 ZI-data=12064  
 FromELF: creating hex file...
 ".\Objects\uart.axf" - 0 Error(s), 0 Warning(s).
 
@@ -64,16 +64,16 @@ Package Vendor: Keil
 
    * Component: Keil::Device:Startup:1.0.0
       Source file:   Device\Source\system_stm32f10x.c
-      Source file:   Device\Source\ARM\STM32F1xx_OPT.s
       Include file:  RTE_Driver\Config\RTE_Device.h
+      Source file:   Device\Source\ARM\STM32F1xx_OPT.s
       Source file:   Device\Source\ARM\startup_stm32f10x_md.s
 
    * Component: Keil::Device:StdPeriph Drivers:Framework:3.6.0
       Source file:   Device\StdPeriph_Driver\templates\stm32f10x_conf.h
       Include file:  Device\StdPeriph_Driver\templates\stm32f10x_it.h
-      Source file:   Device\StdPeriph_Driver\templates\stm32f10x_it.c
-      Include file:  Device\StdPeriph_Driver\inc\misc.h
       Source file:   Device\StdPeriph_Driver\src\misc.c
+      Include file:  Device\StdPeriph_Driver\inc\misc.h
+      Source file:   Device\StdPeriph_Driver\templates\stm32f10x_it.c
 
    * Component: Keil::Device:StdPeriph Drivers:GPIO:3.6.0
       Include file:  Device\StdPeriph_Driver\inc\stm32f10x_gpio.h

@@ -21,7 +21,7 @@ extern "C" {
 #define OTA_RESP_NACK               0x01u
 #define OTA_START_LENGTH                1
 
-#define OTA_MAX_FIRMWARE_SIZE    (64 * 1024)  // 64KB maximum
+#define OTA_MAX_FIRMWARE_SIZE    (10 * 1024)  // 64KB maximum
 #define OTA_MAX_CHUNK_SIZE       150          // Maximum chunk size
 #define OTA_FIRMWARE_BUFFER_SIZE (OTA_MAX_FIRMWARE_SIZE + 256) // Buffer với padding
 
@@ -44,6 +44,9 @@ typedef enum {
  */
 typedef enum
 { 
+		LORA_OTA_STATUS_INVALID_FIRMWARE_SIZE						= -14,
+		LORA_OTA_STATUS_INVALID_CHUNK_SIZE 							= -13,
+		LORA_OTA_STATUS_INVALID_TOTAL_CHUNKS						= -12,
 		LORA_OTA_STATUS_INCOMPLETE_DATA									= -11,
 		LORA_OTA_STATUS_INVALID_DATA_HEADER							= -10,
 		LORA_OTA_STATUS_INVALID_INPUT										= -9,
@@ -106,10 +109,9 @@ typedef struct {
 
 extern OTA_NodeContext_t ota_node;
 
-
 LORA_OtaStatus_t otaNodeProcessFrame(const LORA_frame_t *frame);
 LORA_OtaStatus_t loRaOtaReceiveHandler(uint8_t message_type, uint8_t *payload, uint16_t payload_len);
-void otaNodeInit(uint8_t *fw_storage_buf); 
+void otaNodeInit(); 
 
 
 #ifdef __cplusplus

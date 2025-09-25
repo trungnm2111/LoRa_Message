@@ -16,9 +16,7 @@ Section Cross References
     main.o(.text.loraHandle) refers to lora_ota.o(.text.loRaOtaReceiveHandler) for loRaOtaReceiveHandler
     main.o(.text.loraHandle) refers to fflt_clz.o(x$fpl$fflt) for __aeabi_i2f
     main.o(.text.loraHandle) refers to uart.o(.text.Usart_SendNumber) for Usart_SendNumber
-    main.o(.text.loraHandle) refers to fflt_clz.o(x$fpl$ffltu) for __aeabi_ui2f
     main.o(.text.loraHandle) refers to lora.o(.bss.lora_fsm_frame) for lora_fsm_frame
-    main.o(.text.loraHandle) refers to main.o(.bss.firmware_receive_buffer) for firmware_receive_buffer
     main.o(.ARM.exidx.text.loraHandle) refers to main.o(.text.loraHandle) for [Anonymous Symbol]
     uart.o(.text.fputc) refers to uart.o(.text.Usart_Send_Char) for Usart_Send_Char
     uart.o(.ARM.exidx.text.fputc) refers to uart.o(.text.fputc) for [Anonymous Symbol]
@@ -110,12 +108,18 @@ Section Cross References
     lora_join_network.o(.text.loRaJoinNetworkGetConfirm) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
     lora_join_network.o(.ARM.exidx.text.loRaJoinNetworkGetConfirm) refers to lora_join_network.o(.text.loRaJoinNetworkGetConfirm) for [Anonymous Symbol]
     lora_ota.o(.text.otaNodeInit) refers to lora_ota.o(.bss.ota_node) for ota_node
+    lora_ota.o(.text.otaNodeInit) refers to lora_ota.o(.bss.firmware_receive_buffer) for [Anonymous Symbol]
     lora_ota.o(.ARM.exidx.text.otaNodeInit) refers to lora_ota.o(.text.otaNodeInit) for [Anonymous Symbol]
     lora_ota.o(.text.loRaOtaReceiveHandler) refers to rt_memclr_w.o(.text) for __aeabi_memclr4
-    lora_ota.o(.text.loRaOtaReceiveHandler) refers to rt_memclr.o(.text) for __aeabi_memclr
+    lora_ota.o(.text.loRaOtaReceiveHandler) refers to lora.o(.text.swap_endian16) for swap_endian16
     lora_ota.o(.text.loRaOtaReceiveHandler) refers to crc.o(.text.crc_slow) for crc_slow
+    lora_ota.o(.text.loRaOtaReceiveHandler) refers to fflt_clz.o(x$fpl$ffltu) for __aeabi_ui2f
+    lora_ota.o(.text.loRaOtaReceiveHandler) refers to uart.o(.text.Usart_SendNumber) for Usart_SendNumber
+    lora_ota.o(.text.loRaOtaReceiveHandler) refers to lora.o(.text.swap_endian32) for swap_endian32
+    lora_ota.o(.text.loRaOtaReceiveHandler) refers to rt_memclr.o(.text) for __aeabi_memclr
     lora_ota.o(.text.loRaOtaReceiveHandler) refers to rt_memcpy_v6.o(.text) for __aeabi_memcpy
     lora_ota.o(.text.loRaOtaReceiveHandler) refers to lora_ota.o(.bss.ota_node) for ota_node
+    lora_ota.o(.text.loRaOtaReceiveHandler) refers to lora_ota.o(.bss.firmware_receive_buffer) for [Anonymous Symbol]
     lora_ota.o(.ARM.exidx.text.loRaOtaReceiveHandler) refers to lora_ota.o(.text.loRaOtaReceiveHandler) for [Anonymous Symbol]
     lora_ota.o(.text.loRaOtaCreateStart) refers to lora.o(.text.loRaEncryptedFrame) for loRaEncryptedFrame
     lora_ota.o(.text.loRaOtaCreateStart) refers to lora_ota.o(.rodata..L__const.loRaOtaCreateStart.lora_frame) for [Anonymous Symbol]
@@ -433,9 +437,7 @@ Removing Unused input sections from the image.
     Removing lora.o(.ARM.exidx.text.help_convert_byte_to_uint16), (8 bytes).
     Removing lora.o(.text.help_convert_bytes_to_uint32), (14 bytes).
     Removing lora.o(.ARM.exidx.text.help_convert_bytes_to_uint32), (8 bytes).
-    Removing lora.o(.text.swap_endian16), (4 bytes).
     Removing lora.o(.ARM.exidx.text.swap_endian16), (8 bytes).
-    Removing lora.o(.text.swap_endian32), (4 bytes).
     Removing lora.o(.ARM.exidx.text.swap_endian32), (8 bytes).
     Removing lora.o(.bss.state), (4 bytes).
     Removing lora_join_network.o(.text), (0 bytes).
@@ -637,7 +639,7 @@ Removing Unused input sections from the image.
     Removing system_stm32f10x.o(.data.SystemCoreClock), (4 bytes).
     Removing system_stm32f10x.o(.rodata.AHBPrescTable), (16 bytes).
 
-246 unused section(s) (total 5303 bytes) removed from the image.
+244 unused section(s) (total 5295 bytes) removed from the image.
 
 ==============================================================================
 
@@ -835,45 +837,46 @@ Image Symbol Table
     [Anonymous Symbol]                       0x08000ba4   Section        0  lora.o(.text.loRaGetFsmFrame)
     [Anonymous Symbol]                       0x08000c86   Section        0  lora.o(.text.loRaInitFsmFrame)
     [Anonymous Symbol]                       0x08000c90   Section        0  lora_ota.o(.text.loRaOtaReceiveHandler)
-    __arm_cp.1_1                             0x08000e3c   Number         4  lora_ota.o(.text.loRaOtaReceiveHandler)
-    __arm_cp.1_2                             0x08000e40   Number         4  lora_ota.o(.text.loRaOtaReceiveHandler)
-    [Anonymous Symbol]                       0x08000e44   Section        0  main.o(.text.loraHandle)
-    __arm_cp.1_0                             0x08000ee4   Number         4  main.o(.text.loraHandle)
-    __arm_cp.1_1                             0x08000ee8   Number         4  main.o(.text.loraHandle)
-    __arm_cp.1_2                             0x08000eec   Number         4  main.o(.text.loraHandle)
-    [Anonymous Symbol]                       0x08000ef0   Section        0  main.o(.text.main)
-    __arm_cp.0_0                             0x08000f1c   Number         4  main.o(.text.main)
-    [Anonymous Symbol]                       0x08000f48   Section        0  lora_ota.o(.text.otaNodeInit)
-    __arm_cp.0_0                             0x08000f60   Number         4  lora_ota.o(.text.otaNodeInit)
-    [Anonymous Symbol]                       0x08000f64   Section        0  crc.o(.text.reflect)
-    x$fpl$fadd                               0x08000f84   Section      196  faddsub_clz.o(x$fpl$fadd)
-    _fadd1                                   0x08000f93   Thumb Code     0  faddsub_clz.o(x$fpl$fadd)
-    x$fpl$fcmp                               0x08001048   Section       84  fcmp.o(x$fpl$fcmp)
-    x$fpl$fcmpinf                            0x0800109c   Section       24  fcmpi.o(x$fpl$fcmpinf)
-    x$fpl$feqf                               0x080010b4   Section      104  feqf.o(x$fpl$feqf)
-    x$fpl$ffix                               0x0800111c   Section       54  ffix.o(x$fpl$ffix)
-    x$fpl$ffixu                              0x08001154   Section       62  ffixu.o(x$fpl$ffixu)
-    x$fpl$fflt                               0x08001194   Section       48  fflt_clz.o(x$fpl$fflt)
-    x$fpl$ffltu                              0x080011c4   Section       38  fflt_clz.o(x$fpl$ffltu)
-    x$fpl$fgeqf                              0x080011ec   Section      104  fgeqf.o(x$fpl$fgeqf)
-    x$fpl$fleqf                              0x08001254   Section      104  fleqf.o(x$fpl$fleqf)
-    x$fpl$fmul                               0x080012bc   Section      258  fmul.o(x$fpl$fmul)
-    x$fpl$fnaninf                            0x080013be   Section      140  fnaninf.o(x$fpl$fnaninf)
-    x$fpl$fretinf                            0x0800144a   Section       10  fretinf.o(x$fpl$fretinf)
-    x$fpl$fsub                               0x08001454   Section      234  faddsub_clz.o(x$fpl$fsub)
-    _fsub1                                   0x08001463   Thumb Code     0  faddsub_clz.o(x$fpl$fsub)
-    ADCPrescTable                            0x0800153e   Data           4  stm32f10x_rcc.o(.rodata.ADCPrescTable)
-    [Anonymous Symbol]                       0x0800153e   Section        0  stm32f10x_rcc.o(.rodata.ADCPrescTable)
-    x$fpl$usenofp                            0x0800153e   Section        0  usenofp.o(x$fpl$usenofp)
-    APBAHBPrescTable                         0x08001542   Data          16  stm32f10x_rcc.o(.rodata.APBAHBPrescTable)
-    [Anonymous Symbol]                       0x08001542   Section        0  stm32f10x_rcc.o(.rodata.APBAHBPrescTable)
+    [Anonymous Symbol]                       0x08000e80   Section        0  main.o(.text.loraHandle)
+    __arm_cp.1_0                             0x08000ef4   Number         4  main.o(.text.loraHandle)
+    [Anonymous Symbol]                       0x08000ef8   Section        0  main.o(.text.main)
+    __arm_cp.0_0                             0x08000f24   Number         4  main.o(.text.main)
+    [Anonymous Symbol]                       0x08000f50   Section        0  lora_ota.o(.text.otaNodeInit)
+    __arm_cp.0_0                             0x08000f68   Number         4  lora_ota.o(.text.otaNodeInit)
+    __arm_cp.0_1                             0x08000f6c   Number         4  lora_ota.o(.text.otaNodeInit)
+    [Anonymous Symbol]                       0x08000f70   Section        0  crc.o(.text.reflect)
+    [Anonymous Symbol]                       0x08000f90   Section        0  lora.o(.text.swap_endian16)
+    [Anonymous Symbol]                       0x08000f94   Section        0  lora.o(.text.swap_endian32)
+    x$fpl$fadd                               0x08000f98   Section      196  faddsub_clz.o(x$fpl$fadd)
+    _fadd1                                   0x08000fa7   Thumb Code     0  faddsub_clz.o(x$fpl$fadd)
+    x$fpl$fcmp                               0x0800105c   Section       84  fcmp.o(x$fpl$fcmp)
+    x$fpl$fcmpinf                            0x080010b0   Section       24  fcmpi.o(x$fpl$fcmpinf)
+    x$fpl$feqf                               0x080010c8   Section      104  feqf.o(x$fpl$feqf)
+    x$fpl$ffix                               0x08001130   Section       54  ffix.o(x$fpl$ffix)
+    x$fpl$ffixu                              0x08001168   Section       62  ffixu.o(x$fpl$ffixu)
+    x$fpl$fflt                               0x080011a8   Section       48  fflt_clz.o(x$fpl$fflt)
+    x$fpl$ffltu                              0x080011d8   Section       38  fflt_clz.o(x$fpl$ffltu)
+    x$fpl$fgeqf                              0x08001200   Section      104  fgeqf.o(x$fpl$fgeqf)
+    x$fpl$fleqf                              0x08001268   Section      104  fleqf.o(x$fpl$fleqf)
+    x$fpl$fmul                               0x080012d0   Section      258  fmul.o(x$fpl$fmul)
+    x$fpl$fnaninf                            0x080013d2   Section      140  fnaninf.o(x$fpl$fnaninf)
+    x$fpl$fretinf                            0x0800145e   Section       10  fretinf.o(x$fpl$fretinf)
+    x$fpl$fsub                               0x08001468   Section      234  faddsub_clz.o(x$fpl$fsub)
+    _fsub1                                   0x08001477   Thumb Code     0  faddsub_clz.o(x$fpl$fsub)
+    ADCPrescTable                            0x08001552   Data           4  stm32f10x_rcc.o(.rodata.ADCPrescTable)
+    [Anonymous Symbol]                       0x08001552   Section        0  stm32f10x_rcc.o(.rodata.ADCPrescTable)
+    x$fpl$usenofp                            0x08001552   Section        0  usenofp.o(x$fpl$usenofp)
+    APBAHBPrescTable                         0x08001556   Data          16  stm32f10x_rcc.o(.rodata.APBAHBPrescTable)
+    [Anonymous Symbol]                       0x08001556   Section        0  stm32f10x_rcc.o(.rodata.APBAHBPrescTable)
     .bss                                     0x20000000   Section       96  libspace.o(.bss)
     [Anonymous Symbol]                       0x20000060   Section        0  uart.o(.bss..L_MergedGlobals)
-    Heap_Mem                                 0x20000520   Data         512  startup_stm32f10x_md.o(HEAP)
-    HEAP                                     0x20000520   Section      512  startup_stm32f10x_md.o(HEAP)
-    Stack_Mem                                0x20000720   Data        1024  startup_stm32f10x_md.o(STACK)
-    STACK                                    0x20000720   Section     1024  startup_stm32f10x_md.o(STACK)
-    __initial_sp                             0x20000b20   Data           0  startup_stm32f10x_md.o(STACK)
+    firmware_receive_buffer                  0x20000062   Data       10240  lora_ota.o(.bss.firmware_receive_buffer)
+    [Anonymous Symbol]                       0x20000062   Section        0  lora_ota.o(.bss.firmware_receive_buffer)
+    Heap_Mem                                 0x20002920   Data         512  startup_stm32f10x_md.o(HEAP)
+    HEAP                                     0x20002920   Section      512  startup_stm32f10x_md.o(HEAP)
+    Stack_Mem                                0x20002b20   Data        1024  startup_stm32f10x_md.o(STACK)
+    STACK                                    0x20002b20   Section     1024  startup_stm32f10x_md.o(STACK)
+    __initial_sp                             0x20002f20   Data           0  startup_stm32f10x_md.o(STACK)
 
     Global Symbols
 
@@ -1061,55 +1064,56 @@ Image Symbol Table
     loRaDecodeFrame                          0x08000ab9   Thumb Code   234  lora.o(.text.loRaDecodeFrame)
     loRaGetFsmFrame                          0x08000ba5   Thumb Code   226  lora.o(.text.loRaGetFsmFrame)
     loRaInitFsmFrame                         0x08000c87   Thumb Code     8  lora.o(.text.loRaInitFsmFrame)
-    loRaOtaReceiveHandler                    0x08000c91   Thumb Code   440  lora_ota.o(.text.loRaOtaReceiveHandler)
-    loraHandle                               0x08000e45   Thumb Code   172  main.o(.text.loraHandle)
-    main                                     0x08000ef1   Thumb Code    88  main.o(.text.main)
-    otaNodeInit                              0x08000f49   Thumb Code    28  lora_ota.o(.text.otaNodeInit)
-    reflect                                  0x08000f65   Thumb Code    32  crc.o(.text.reflect)
-    __aeabi_fadd                             0x08000f85   Thumb Code     0  faddsub_clz.o(x$fpl$fadd)
-    _fadd                                    0x08000f85   Thumb Code   196  faddsub_clz.o(x$fpl$fadd)
-    __aeabi_fcmpeq                           0x08001049   Thumb Code     0  fcmp.o(x$fpl$fcmp)
-    _feq                                     0x08001049   Thumb Code    14  fcmp.o(x$fpl$fcmp)
-    _fneq                                    0x08001057   Thumb Code    14  fcmp.o(x$fpl$fcmp)
-    __aeabi_fcmpgt                           0x08001065   Thumb Code     0  fcmp.o(x$fpl$fcmp)
-    _fgr                                     0x08001065   Thumb Code    14  fcmp.o(x$fpl$fcmp)
-    __aeabi_fcmpge                           0x08001073   Thumb Code     0  fcmp.o(x$fpl$fcmp)
-    _fgeq                                    0x08001073   Thumb Code    14  fcmp.o(x$fpl$fcmp)
-    __aeabi_fcmple                           0x08001081   Thumb Code     0  fcmp.o(x$fpl$fcmp)
-    _fleq                                    0x08001081   Thumb Code    14  fcmp.o(x$fpl$fcmp)
-    __aeabi_fcmplt                           0x0800108f   Thumb Code     0  fcmp.o(x$fpl$fcmp)
-    _fls                                     0x0800108f   Thumb Code    14  fcmp.o(x$fpl$fcmp)
-    __fpl_fcmp_Inf                           0x0800109d   Thumb Code    24  fcmpi.o(x$fpl$fcmpinf)
-    __aeabi_cfcmpeq                          0x080010b5   Thumb Code     0  feqf.o(x$fpl$feqf)
-    _fcmpeq                                  0x080010b5   Thumb Code   104  feqf.o(x$fpl$feqf)
-    __aeabi_f2iz                             0x0800111d   Thumb Code     0  ffix.o(x$fpl$ffix)
-    _ffix                                    0x0800111d   Thumb Code    54  ffix.o(x$fpl$ffix)
-    __aeabi_f2uiz                            0x08001155   Thumb Code     0  ffixu.o(x$fpl$ffixu)
-    _ffixu                                   0x08001155   Thumb Code    62  ffixu.o(x$fpl$ffixu)
-    __aeabi_i2f                              0x08001195   Thumb Code     0  fflt_clz.o(x$fpl$fflt)
-    _fflt                                    0x08001195   Thumb Code    48  fflt_clz.o(x$fpl$fflt)
-    __aeabi_ui2f                             0x080011c5   Thumb Code     0  fflt_clz.o(x$fpl$ffltu)
-    _ffltu                                   0x080011c5   Thumb Code    38  fflt_clz.o(x$fpl$ffltu)
-    _fcmpge                                  0x080011ed   Thumb Code   104  fgeqf.o(x$fpl$fgeqf)
-    __aeabi_cfcmple                          0x08001255   Thumb Code     0  fleqf.o(x$fpl$fleqf)
-    _fcmple                                  0x08001255   Thumb Code   104  fleqf.o(x$fpl$fleqf)
-    __fpl_fcmple_InfNaN                      0x080012a7   Thumb Code     0  fleqf.o(x$fpl$fleqf)
-    __aeabi_fmul                             0x080012bd   Thumb Code     0  fmul.o(x$fpl$fmul)
-    _fmul                                    0x080012bd   Thumb Code   258  fmul.o(x$fpl$fmul)
-    __fpl_fnaninf                            0x080013bf   Thumb Code   140  fnaninf.o(x$fpl$fnaninf)
-    __fpl_fretinf                            0x0800144b   Thumb Code    10  fretinf.o(x$fpl$fretinf)
-    __aeabi_fsub                             0x08001455   Thumb Code     0  faddsub_clz.o(x$fpl$fsub)
-    _fsub                                    0x08001455   Thumb Code   234  faddsub_clz.o(x$fpl$fsub)
-    __I$use$fp                               0x0800153e   Number         0  usenofp.o(x$fpl$usenofp)
-    Region$$Table$$Base                      0x08001554   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08001564   Number         0  anon$$obj.o(Region$$Table)
+    loRaOtaReceiveHandler                    0x08000c91   Thumb Code   504  lora_ota.o(.text.loRaOtaReceiveHandler)
+    loraHandle                               0x08000e81   Thumb Code   120  main.o(.text.loraHandle)
+    main                                     0x08000ef9   Thumb Code    88  main.o(.text.main)
+    otaNodeInit                              0x08000f51   Thumb Code    32  lora_ota.o(.text.otaNodeInit)
+    reflect                                  0x08000f71   Thumb Code    32  crc.o(.text.reflect)
+    swap_endian16                            0x08000f91   Thumb Code     4  lora.o(.text.swap_endian16)
+    swap_endian32                            0x08000f95   Thumb Code     4  lora.o(.text.swap_endian32)
+    __aeabi_fadd                             0x08000f99   Thumb Code     0  faddsub_clz.o(x$fpl$fadd)
+    _fadd                                    0x08000f99   Thumb Code   196  faddsub_clz.o(x$fpl$fadd)
+    __aeabi_fcmpeq                           0x0800105d   Thumb Code     0  fcmp.o(x$fpl$fcmp)
+    _feq                                     0x0800105d   Thumb Code    14  fcmp.o(x$fpl$fcmp)
+    _fneq                                    0x0800106b   Thumb Code    14  fcmp.o(x$fpl$fcmp)
+    __aeabi_fcmpgt                           0x08001079   Thumb Code     0  fcmp.o(x$fpl$fcmp)
+    _fgr                                     0x08001079   Thumb Code    14  fcmp.o(x$fpl$fcmp)
+    __aeabi_fcmpge                           0x08001087   Thumb Code     0  fcmp.o(x$fpl$fcmp)
+    _fgeq                                    0x08001087   Thumb Code    14  fcmp.o(x$fpl$fcmp)
+    __aeabi_fcmple                           0x08001095   Thumb Code     0  fcmp.o(x$fpl$fcmp)
+    _fleq                                    0x08001095   Thumb Code    14  fcmp.o(x$fpl$fcmp)
+    __aeabi_fcmplt                           0x080010a3   Thumb Code     0  fcmp.o(x$fpl$fcmp)
+    _fls                                     0x080010a3   Thumb Code    14  fcmp.o(x$fpl$fcmp)
+    __fpl_fcmp_Inf                           0x080010b1   Thumb Code    24  fcmpi.o(x$fpl$fcmpinf)
+    __aeabi_cfcmpeq                          0x080010c9   Thumb Code     0  feqf.o(x$fpl$feqf)
+    _fcmpeq                                  0x080010c9   Thumb Code   104  feqf.o(x$fpl$feqf)
+    __aeabi_f2iz                             0x08001131   Thumb Code     0  ffix.o(x$fpl$ffix)
+    _ffix                                    0x08001131   Thumb Code    54  ffix.o(x$fpl$ffix)
+    __aeabi_f2uiz                            0x08001169   Thumb Code     0  ffixu.o(x$fpl$ffixu)
+    _ffixu                                   0x08001169   Thumb Code    62  ffixu.o(x$fpl$ffixu)
+    __aeabi_i2f                              0x080011a9   Thumb Code     0  fflt_clz.o(x$fpl$fflt)
+    _fflt                                    0x080011a9   Thumb Code    48  fflt_clz.o(x$fpl$fflt)
+    __aeabi_ui2f                             0x080011d9   Thumb Code     0  fflt_clz.o(x$fpl$ffltu)
+    _ffltu                                   0x080011d9   Thumb Code    38  fflt_clz.o(x$fpl$ffltu)
+    _fcmpge                                  0x08001201   Thumb Code   104  fgeqf.o(x$fpl$fgeqf)
+    __aeabi_cfcmple                          0x08001269   Thumb Code     0  fleqf.o(x$fpl$fleqf)
+    _fcmple                                  0x08001269   Thumb Code   104  fleqf.o(x$fpl$fleqf)
+    __fpl_fcmple_InfNaN                      0x080012bb   Thumb Code     0  fleqf.o(x$fpl$fleqf)
+    __aeabi_fmul                             0x080012d1   Thumb Code     0  fmul.o(x$fpl$fmul)
+    _fmul                                    0x080012d1   Thumb Code   258  fmul.o(x$fpl$fmul)
+    __fpl_fnaninf                            0x080013d3   Thumb Code   140  fnaninf.o(x$fpl$fnaninf)
+    __fpl_fretinf                            0x0800145f   Thumb Code    10  fretinf.o(x$fpl$fretinf)
+    __aeabi_fsub                             0x08001469   Thumb Code     0  faddsub_clz.o(x$fpl$fsub)
+    _fsub                                    0x08001469   Thumb Code   234  faddsub_clz.o(x$fpl$fsub)
+    __I$use$fp                               0x08001552   Number         0  usenofp.o(x$fpl$usenofp)
+    Region$$Table$$Base                      0x08001568   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08001578   Number         0  anon$$obj.o(Region$$Table)
     __libspace_start                         0x20000000   Data          96  libspace.o(.bss)
     __temporary_stack_top$libspace           0x20000060   Data           0  libspace.o(.bss)
     flag_end_receive                         0x20000060   Data           1  uart.o(.bss..L_MergedGlobals)
     data_receice                             0x20000061   Data           1  uart.o(.bss..L_MergedGlobals)
-    firmware_receive_buffer                  0x20000062   Data        1024  main.o(.bss.firmware_receive_buffer)
-    lora_fsm_frame                           0x20000464   Data         160  lora.o(.bss.lora_fsm_frame)
-    ota_node                                 0x20000504   Data          28  lora_ota.o(.bss.ota_node)
+    lora_fsm_frame                           0x20002864   Data         160  lora.o(.bss.lora_fsm_frame)
+    ota_node                                 0x20002904   Data          28  lora_ota.o(.bss.ota_node)
 
 
 
@@ -1119,9 +1123,9 @@ Memory Map of the image
 
   Image Entry point : 0x080000ed
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00001564, Max: 0x00010000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00001578, Max: 0x00010000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00001564, Max: 0x00010000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00001578, Max: 0x00010000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -1187,11 +1191,11 @@ Memory Map of the image
     0x080003a6   0x080003a6   0x000000b8   Code   RO          173    .text.GPIO_Init     stm32f10x_gpio.o
     0x0800045e   0x0800045e   0x00000002   PAD
     0x08000460   0x08000460   0x00000070   Code   RO          199    .text.GPIO_PinRemapConfig  stm32f10x_gpio.o
-    0x080004d0   0x080004d0   0x0000006c   Code   RO           21    .text.Pin_Config    uart.o
+    0x080004d0   0x080004d0   0x0000006c   Code   RO           20    .text.Pin_Config    uart.o
     0x0800053c   0x0800053c   0x00000018   Code   RO          258    .text.RCC_APB2PeriphClockCmd  stm32f10x_rcc.o
     0x08000554   0x08000554   0x00000084   Code   RO          254    .text.RCC_GetClocksFreq  stm32f10x_rcc.o
     0x080005d8   0x080005d8   0x000000f0   Code   RO          365    .text.SystemInit    system_stm32f10x.o
-    0x080006c8   0x080006c8   0x00000048   Code   RO           31    .text.USART1_IRQHandler  uart.o
+    0x080006c8   0x080006c8   0x00000048   Code   RO           30    .text.USART1_IRQHandler  uart.o
     0x08000710   0x08000710   0x0000000e   Code   RO          345    .text.USART_ClearITPendingBit  stm32f10x_usart.o
     0x0800071e   0x0800071e   0x00000012   Code   RO          299    .text.USART_Cmd     stm32f10x_usart.o
     0x08000730   0x08000730   0x0000000a   Code   RO          339    .text.USART_GetFlagStatus  stm32f10x_usart.o
@@ -1201,58 +1205,60 @@ Memory Map of the image
     0x080007ac   0x080007ac   0x000000a0   Code   RO          291    .text.USART_Init    stm32f10x_usart.o
     0x0800084c   0x0800084c   0x00000008   Code   RO          317    .text.USART_ReceiveData  stm32f10x_usart.o
     0x08000854   0x08000854   0x00000008   Code   RO          315    .text.USART_SendData  stm32f10x_usart.o
-    0x0800085c   0x0800085c   0x00000014   Code   RO           33    .text.Usart_CheckFlag  uart.o
-    0x08000870   0x08000870   0x000000d8   Code   RO           23    .text.Usart_Config  uart.o
-    0x08000948   0x08000948   0x000000e8   Code   RO           29    .text.Usart_SendNumber  uart.o
-    0x08000a30   0x08000a30   0x00000020   Code   RO           19    .text.Usart_Send_Char  uart.o
-    0x08000a50   0x08000a50   0x00000014   Code   RO           27    .text.Usart_Send_String  uart.o
-    0x08000a64   0x08000a64   0x00000054   Code   RO           58    .text.crc_slow      crc.o
-    0x08000ab8   0x08000ab8   0x000000ea   Code   RO           74    .text.loRaDecodeFrame  lora.o
+    0x0800085c   0x0800085c   0x00000014   Code   RO           32    .text.Usart_CheckFlag  uart.o
+    0x08000870   0x08000870   0x000000d8   Code   RO           22    .text.Usart_Config  uart.o
+    0x08000948   0x08000948   0x000000e8   Code   RO           28    .text.Usart_SendNumber  uart.o
+    0x08000a30   0x08000a30   0x00000020   Code   RO           18    .text.Usart_Send_Char  uart.o
+    0x08000a50   0x08000a50   0x00000014   Code   RO           26    .text.Usart_Send_String  uart.o
+    0x08000a64   0x08000a64   0x00000054   Code   RO           57    .text.crc_slow      crc.o
+    0x08000ab8   0x08000ab8   0x000000ea   Code   RO           73    .text.loRaDecodeFrame  lora.o
     0x08000ba2   0x08000ba2   0x00000002   PAD
-    0x08000ba4   0x08000ba4   0x000000e2   Code   RO           76    .text.loRaGetFsmFrame  lora.o
-    0x08000c86   0x08000c86   0x00000008   Code   RO           78    .text.loRaInitFsmFrame  lora.o
+    0x08000ba4   0x08000ba4   0x000000e2   Code   RO           75    .text.loRaGetFsmFrame  lora.o
+    0x08000c86   0x08000c86   0x00000008   Code   RO           77    .text.loRaInitFsmFrame  lora.o
     0x08000c8e   0x08000c8e   0x00000002   PAD
-    0x08000c90   0x08000c90   0x000001b4   Code   RO          124    .text.loRaOtaReceiveHandler  lora_ota.o
-    0x08000e44   0x08000e44   0x000000ac   Code   RO            4    .text.loraHandle    main.o
-    0x08000ef0   0x08000ef0   0x00000058   Code   RO            2    .text.main          main.o
-    0x08000f48   0x08000f48   0x0000001c   Code   RO          122    .text.otaNodeInit   lora_ota.o
-    0x08000f64   0x08000f64   0x00000020   Code   RO           54    .text.reflect       crc.o
-    0x08000f84   0x08000f84   0x000000c4   Code   RO          393    x$fpl$fadd          fz_ws.l(faddsub_clz.o)
-    0x08001048   0x08001048   0x00000054   Code   RO          399    x$fpl$fcmp          fz_ws.l(fcmp.o)
-    0x0800109c   0x0800109c   0x00000018   Code   RO          446    x$fpl$fcmpinf       fz_ws.l(fcmpi.o)
-    0x080010b4   0x080010b4   0x00000068   Code   RO          420    x$fpl$feqf          fz_ws.l(feqf.o)
-    0x0800111c   0x0800111c   0x00000036   Code   RO          401    x$fpl$ffix          fz_ws.l(ffix.o)
-    0x08001152   0x08001152   0x00000002   PAD
-    0x08001154   0x08001154   0x0000003e   Code   RO          405    x$fpl$ffixu         fz_ws.l(ffixu.o)
-    0x08001192   0x08001192   0x00000002   PAD
-    0x08001194   0x08001194   0x00000030   Code   RO          410    x$fpl$fflt          fz_ws.l(fflt_clz.o)
-    0x080011c4   0x080011c4   0x00000026   Code   RO          409    x$fpl$ffltu         fz_ws.l(fflt_clz.o)
-    0x080011ea   0x080011ea   0x00000002   PAD
-    0x080011ec   0x080011ec   0x00000068   Code   RO          422    x$fpl$fgeqf         fz_ws.l(fgeqf.o)
-    0x08001254   0x08001254   0x00000068   Code   RO          424    x$fpl$fleqf         fz_ws.l(fleqf.o)
-    0x080012bc   0x080012bc   0x00000102   Code   RO          415    x$fpl$fmul          fz_ws.l(fmul.o)
-    0x080013be   0x080013be   0x0000008c   Code   RO          426    x$fpl$fnaninf       fz_ws.l(fnaninf.o)
-    0x0800144a   0x0800144a   0x0000000a   Code   RO          428    x$fpl$fretinf       fz_ws.l(fretinf.o)
-    0x08001454   0x08001454   0x000000ea   Code   RO          395    x$fpl$fsub          fz_ws.l(faddsub_clz.o)
-    0x0800153e   0x0800153e   0x00000000   Code   RO          430    x$fpl$usenofp       fz_ws.l(usenofp.o)
-    0x0800153e   0x0800153e   0x00000004   Data   RO          279    .rodata.ADCPrescTable  stm32f10x_rcc.o
-    0x08001542   0x08001542   0x00000010   Data   RO          278    .rodata.APBAHBPrescTable  stm32f10x_rcc.o
-    0x08001552   0x08001552   0x00000002   PAD
-    0x08001554   0x08001554   0x00000010   Data   RO          592    Region$$Table       anon$$obj.o
+    0x08000c90   0x08000c90   0x000001f0   Code   RO          123    .text.loRaOtaReceiveHandler  lora_ota.o
+    0x08000e80   0x08000e80   0x00000078   Code   RO            4    .text.loraHandle    main.o
+    0x08000ef8   0x08000ef8   0x00000058   Code   RO            2    .text.main          main.o
+    0x08000f50   0x08000f50   0x00000020   Code   RO          121    .text.otaNodeInit   lora_ota.o
+    0x08000f70   0x08000f70   0x00000020   Code   RO           53    .text.reflect       crc.o
+    0x08000f90   0x08000f90   0x00000004   Code   RO           83    .text.swap_endian16  lora.o
+    0x08000f94   0x08000f94   0x00000004   Code   RO           85    .text.swap_endian32  lora.o
+    0x08000f98   0x08000f98   0x000000c4   Code   RO          393    x$fpl$fadd          fz_ws.l(faddsub_clz.o)
+    0x0800105c   0x0800105c   0x00000054   Code   RO          399    x$fpl$fcmp          fz_ws.l(fcmp.o)
+    0x080010b0   0x080010b0   0x00000018   Code   RO          446    x$fpl$fcmpinf       fz_ws.l(fcmpi.o)
+    0x080010c8   0x080010c8   0x00000068   Code   RO          420    x$fpl$feqf          fz_ws.l(feqf.o)
+    0x08001130   0x08001130   0x00000036   Code   RO          401    x$fpl$ffix          fz_ws.l(ffix.o)
+    0x08001166   0x08001166   0x00000002   PAD
+    0x08001168   0x08001168   0x0000003e   Code   RO          405    x$fpl$ffixu         fz_ws.l(ffixu.o)
+    0x080011a6   0x080011a6   0x00000002   PAD
+    0x080011a8   0x080011a8   0x00000030   Code   RO          410    x$fpl$fflt          fz_ws.l(fflt_clz.o)
+    0x080011d8   0x080011d8   0x00000026   Code   RO          409    x$fpl$ffltu         fz_ws.l(fflt_clz.o)
+    0x080011fe   0x080011fe   0x00000002   PAD
+    0x08001200   0x08001200   0x00000068   Code   RO          422    x$fpl$fgeqf         fz_ws.l(fgeqf.o)
+    0x08001268   0x08001268   0x00000068   Code   RO          424    x$fpl$fleqf         fz_ws.l(fleqf.o)
+    0x080012d0   0x080012d0   0x00000102   Code   RO          415    x$fpl$fmul          fz_ws.l(fmul.o)
+    0x080013d2   0x080013d2   0x0000008c   Code   RO          426    x$fpl$fnaninf       fz_ws.l(fnaninf.o)
+    0x0800145e   0x0800145e   0x0000000a   Code   RO          428    x$fpl$fretinf       fz_ws.l(fretinf.o)
+    0x08001468   0x08001468   0x000000ea   Code   RO          395    x$fpl$fsub          fz_ws.l(faddsub_clz.o)
+    0x08001552   0x08001552   0x00000000   Code   RO          430    x$fpl$usenofp       fz_ws.l(usenofp.o)
+    0x08001552   0x08001552   0x00000004   Data   RO          279    .rodata.ADCPrescTable  stm32f10x_rcc.o
+    0x08001556   0x08001556   0x00000010   Data   RO          278    .rodata.APBAHBPrescTable  stm32f10x_rcc.o
+    0x08001566   0x08001566   0x00000002   PAD
+    0x08001568   0x08001568   0x00000010   Data   RO          592    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08001564, Size: 0x00000b20, Max: 0x00005000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08001578, Size: 0x00002f20, Max: 0x00005000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x20000000        -       0x00000060   Zero   RW          459    .bss                c_wu.l(libspace.o)
-    0x20000060        -       0x00000002   Zero   RW           44    .bss..L_MergedGlobals  uart.o
-    0x20000062        -       0x00000400   Zero   RW            6    .bss.firmware_receive_buffer  main.o
-    0x20000462   0x08001564   0x00000002   PAD
-    0x20000464        -       0x000000a0   Zero   RW           89    .bss.lora_fsm_frame  lora.o
-    0x20000504        -       0x0000001c   Zero   RW          136    .bss.ota_node       lora_ota.o
-    0x20000520        -       0x00000200   Zero   RW          356    HEAP                startup_stm32f10x_md.o
-    0x20000720        -       0x00000400   Zero   RW          355    STACK               startup_stm32f10x_md.o
+    0x20000060        -       0x00000002   Zero   RW           43    .bss..L_MergedGlobals  uart.o
+    0x20000062        -       0x00002800   Zero   RW          136    .bss.firmware_receive_buffer  lora_ota.o
+    0x20002862   0x08001578   0x00000002   PAD
+    0x20002864        -       0x000000a0   Zero   RW           88    .bss.lora_fsm_frame  lora.o
+    0x20002904        -       0x0000001c   Zero   RW          135    .bss.ota_node       lora_ota.o
+    0x20002920        -       0x00000200   Zero   RW          356    HEAP                startup_stm32f10x_md.o
+    0x20002b20        -       0x00000400   Zero   RW          355    STACK               startup_stm32f10x_md.o
 
 
 ==============================================================================
@@ -1262,19 +1268,19 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   Object Name
 
-       116          4          0          0          0       2203   crc.o
-       468          6          0          0        160       4937   lora.o
-       464         18          0          0         28       6758   lora_ota.o
-       260         56          0          0       1024       3774   main.o
-        64         26        236          0       1536        832   startup_stm32f10x_md.o
-       296          4          0          0          0       5694   stm32f10x_gpio.o
-       156         24         20          0          0       7947   stm32f10x_rcc.o
-       330          0          0          0          0       7574   stm32f10x_usart.o
-       240         20          0          0          0       2688   system_stm32f10x.o
-       700         48          0          0          2       7536   uart.o
+       116          4          0          0          0       2216   crc.o
+       476          6          0          0        160       4950   lora.o
+       528         14          0          0      10268       7021   lora_ota.o
+       208         48          0          0          0       3778   main.o
+        64         26        236          0       1536        844   startup_stm32f10x_md.o
+       296          4          0          0          0       5707   stm32f10x_gpio.o
+       156         24         20          0          0       7960   stm32f10x_rcc.o
+       330          0          0          0          0       7587   stm32f10x_usart.o
+       240         20          0          0          0       2701   system_stm32f10x.o
+       700         48          0          0          2       7549   uart.o
 
     ----------------------------------------------------------------------
-      3102        206        274          0       2752      49943   Object Totals
+      3122        194        274          0      11968      50313   Object Totals
          0          0         16          0          0          0   (incl. Generated)
          8          0          2          0          2          0   (incl. Padding)
 
@@ -1340,15 +1346,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      5202        258        274          0       2848      50807   Grand Totals
-      5202        258        274          0       2848      50807   ELF Image Totals
-      5202        258        274          0          0          0   ROM Totals
+      5222        246        274          0      12064      51177   Grand Totals
+      5222        246        274          0      12064      51177   ELF Image Totals
+      5222        246        274          0          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 5476 (   5.35kB)
-    Total RW  Size (RW Data + ZI Data)              2848 (   2.78kB)
-    Total ROM Size (Code + RO Data + RW Data)       5476 (   5.35kB)
+    Total RO  Size (Code + RO Data)                 5496 (   5.37kB)
+    Total RW  Size (RW Data + ZI Data)             12064 (  11.78kB)
+    Total ROM Size (Code + RO Data + RW Data)       5496 (   5.37kB)
 
 ==============================================================================
 

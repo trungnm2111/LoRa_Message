@@ -6,7 +6,7 @@
 #include "lora_ota.h"
 
 
-uint8_t firmware_receive_buffer[1024];
+
 
 uint8_t loraHandle(void);
 static void printHexArray(const uint8_t *array, uint16_t length);
@@ -54,7 +54,7 @@ uint8_t loraHandle(void)
 	
 	if(decode_frame.message_type == OTA_TYPE_START)
 	{
-		otaNodeInit(firmware_receive_buffer);
+		otaNodeInit();
 	}
 	
 //	Usart_SendNumber(decode_frame.packet_type);
@@ -65,9 +65,9 @@ uint8_t loraHandle(void)
 	st = loRaOtaReceiveHandler(decode_frame.message_type, decode_frame.data_payload, decode_frame.data_len);
 	if(st < 0) 
 	{
-		Usart_SendNumber(decode_frame.message_type);
-		Usart_SendNumber(decode_frame.data_len);
-		Usart_Send_Char('\n');
+//		Usart_SendNumber(decode_frame.message_type);
+//		Usart_SendNumber(decode_frame.data_len);
+//		Usart_Send_Char('\n');
 		Usart_SendNumber(st);
 		return -1;
 	}
